@@ -1,0 +1,11 @@
+@charset "UTF-8";
+//@import "compass";
+
+button[disabled], .btn.disabled {
+	pointer-events: none;
+	cursor: not-allowed;
+	filter: alpha(opacity=30);
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	opacity: .30;
+}
