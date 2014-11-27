@@ -1792,12 +1792,6 @@ fieldset.group {
           float: left; }
         #poststuff #pixfields_manager.active .pixfields_manager_modal .table_head > li span.filterable {
           padding-left: 22px; }
-      #poststuff #pixfields_manager.active .pixfields_manager_modal .pixfields_form, #poststuff #pixfields_manager.active .pixfields_manager_modal .postbox, #poststuff #pixfields_manager.active .pixfields_manager_modal .inside, #poststuff #pixfields_manager.active .pixfields_manager_modal .inside > .row {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0; }
       #poststuff #pixfields_manager.active .pixfields_manager_modal .control_bar {
         position: absolute;
         bottom: 0;
@@ -1813,6 +1807,12 @@ fieldset.group {
           padding: 16px;
           text-align: right;
           border-top: 1px solid #dddddd; }
+    #poststuff #pixfields_manager.active .pixfields_form, #poststuff #pixfields_manager.active .postbox, #poststuff #pixfields_manager.active .inside, #poststuff #pixfields_manager.active .inside > .row {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0; }
 
 #pixfields.ajax_running {
   opacity: 0.3; }

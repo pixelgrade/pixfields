@@ -7,10 +7,19 @@
 		$(document).on('click', '.add_new_pixfield .add_field', function( ev ){
 			ev.preventDefault();
 			var label = $(this).siblings('.label').find('input')[0];
+
+			debugger;
+			// do not allow fields without  a label so let's check
+			// first force the label field to be required
+			$(label).attr('required', 'required');
 			if ( ! label.checkValidity() ) {
 				label.reportValidity();
+
+				// remove our atts before exit
+				$(label).attr('required', false);
 				return;
 			}
+			$(label ).attr('required', false);
 
 			var $list = $('.pix_fields_list' ),
 				$new_field = $(this).parent('.pixfield'),
@@ -18,7 +27,7 @@
 				order = ( $list.get(0).childElementCount >= 0 ) ? $list.get(0).childElementCount : 1,
 				filter = $($new_field).find('.filterable input')[0].checked;
 
-			// now we only need the value
+			// we only need the value
 			var label_val = $(label).val();
 
 			// do not allow an empty label input
@@ -49,7 +58,6 @@
 			helper: "clone",
 			handle: '.drag'
 		});
-
 		$( "ul.ui-sortable, .ui-sortable li" ).disableSelection();
 
 		/**
@@ -89,10 +97,8 @@
 				},
 				success: function (result) {
 					if ( typeof result !== 'undefined' || result !== '' ) {
-						//var result = JSON.parse(json_data);
 						if ( result.success ) {
 							$('#pixfields .inside').html(result.data);
-							//console.log( result.data );
 						}
 					}
 					$pixfields_container.removeClass('ajax_running');
