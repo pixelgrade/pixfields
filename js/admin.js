@@ -1,5 +1,185 @@
 (function( $ ) {
 	"use strict";
+
+	$(document ).ready(function(){
+
+		// add field
+		$(document).on('click', '.add_new_pixfield .add_field', function( ev ){
+			ev.preventDefault();
+			var label = $(this).siblings('.label').find('input')[0];
+			if ( ! label.checkValidity() ) {
+				label.reportValidity();
+				return;
+			}
+
+			var $list = $('.pix_fields_list' ),
+				$new_field = $(this).parent('.pixfield'),
+				post_type = $new_field.data('post_type' ),
+				order = ( $list.get(0).childElementCount >= 0 ) ? $list.get(0).childElementCount : 1,
+				filter = $($new_field).find('.filterable input')[0].checked;
+
+			// now we only need the value
+			var label_val = $(label).val();
+
+			// do not allow an empty label input
+			$list.append( get_field_template({post_type: post_type, order: order, label: label_val, filter: filter}) );
+
+			// keep showing the last added field
+			$list.parent().animate({ scrollTop: $list.parent().height() }, 300);
+
+			// clear after append
+			$(label).val('');
+			$($new_field).find('.filterable input').prop('checked', false);
+		});
+
+		// delete field
+		$(document ).on('click', '.pixfields_box .delete_field', function( ev, el){
+			ev.preventDefault();
+			var response = confirm('Are you sure?');
+			if ( ! response ) {
+				return;
+			}
+			$(this ).parents('.pixfield').remove();
+		});
+
+		$( ".ui-sortable" ).sortable({
+			connectToSortable: ".ui-sortable",
+			revert: true,
+			placeholder: "ui-state-highlight",
+			helper: "clone",
+			handle: '.drag'
+		});
+
+		$( "ul.ui-sortable, .ui-sortable li" ).disableSelection();
+
+		/**
+		 * Modal
+		 **/
+
+		// click on Manage button
+		$(document).on('click', '.open_pixfields_modal', function(ev) {
+			ev.preventDefault();
+			open_modal();
+		});
+
+		// click on close button
+		$(document).on('click', '.media-modal-close', function(ev) {
+			ev.preventDefault();
+			close_modal();
+		});
+
+		// update pixfields
+		$(document).on('click', '.update_pixfields', function(ev) {
+			ev.preventDefault();
+
+			var $pixfields_container = $('#pixfields .inside' ),
+				pixfields = $(this).parents('.pixfields_form' ).find('select, textarea, input');
+
+			$pixfields_container.addClass('ajax_running');
+			var serialized_data = serialize_form(pixfields);
+
+			$.ajax({
+				url: pixfields_l10n.ajax_url,
+				type : 'post',
+				dataType : 'json',
+				data: {
+					action: 'save_pixfields',
+					post_id: $('#post_ID' ).val(),
+					fields: serialized_data
+				},
+				success: function (result) {
+					if ( typeof result !== 'undefined' || result !== '' ) {
+						//var result = JSON.parse(json_data);
+						if ( result.success ) {
+							$('#pixfields .inside').html(result.data);
+							//console.log( result.data );
+						}
+					}
+					$pixfields_container.removeClass('ajax_running');
+				}
+			});
+
+			close_modal();
+		});
+	});
+
+	var close_modal = function() {
+		$('#pixfields_manager' ).removeClass('active');
+	};
+
+	var open_modal = function() {
+		$('#pixfields_manager' ).addClass('active');
+	};
+
+	var get_field_template = function( args ) {
+
+		var post_type = args.post_type,
+			order = args.order,
+			label = args.label,
+			filter = args.filter;
+
+		// if the filter field was checked then we should put it in the new template too
+		if ( filter ) {
+			filter = 'checked="checked"';
+		} else {
+			filter = '';
+		}
+		return '' +
+			'<li class="pixfield" data-order="' + order + '">' +
+				'<span class="drag"><i class="fa fa-arrows"></i></span>' +
+				'<span class="label">' +
+					'<input type="text" name="fields_manager['+post_type+']['+ order +'][label]" value="' + label + '" />' +
+				'</span>' +
+				//'<span class="default_value">' +
+				//	'<input type="text" name="fields_manager['+post_type+']['+ order +'][default]" />' +
+				//'</span>' +
+				'<span class="filterable">' +
+					'<input type="checkbox" name="fields_manager['+post_type+']['+ order +'][filter]" ' + filter + '/>' +
+				'</span>' +
+				'<a href="#" class="delete_field">Delete</a>' +
+			'</li>'
+	};
+
+	var serialize_form = function( form ) {
+		if ( form.length > 0 ) {
+			return $(form ).serialize();
+		}
+		return false;
+	};
+
+	// @TODO this is a fail
+	//$.fn.serializePixfields = function() {
+	//	var data = {};
+	//
+	//	$(this).each( function( key, element ) {
+	//
+	//		var name = $(this ).attr('name').replace('fields_manager[', '');
+	//		name = name.substring(0, name.length - 1 );
+	//
+	//		var keys = name.split(']['),
+	//			post_type = keys.shift(),
+	//			counter = keys.shift(),
+	//			field = keys.shift();
+	//
+	//		if ( typeof data.post_type === 'undefined' ) {
+	//			data.post_type = {};
+	//		}
+	//
+	//
+	//		if ( typeof  data.post_type.counter === 'undefined' ) {
+	//			data.post_type.counter = {};
+	//		}
+	//		//if ( typeof data.post_type.counter.field === 'undefined' ) {
+	//		//	data.post_type.counter.field = {};
+	//		//}
+	//
+	//		data.post_type.counter.field = $(this).val();
+	//		console.log(post_type);
+	//	});
+	//
+	//	return data;
+	//};
+
 	$( function() {
 
 		/**
@@ -7,14 +187,14 @@
 		 *  Any checkbox should switch between value 1 and 0
 		 *  Also test if the checkbox needs to hide or show something under it.
 		 */
-//		$('#pixtypes_form input:checkbox').each(function(i,e){
-//			check_checkbox_checked(e);
-//			$(e).check_for_extended_options();
-//		});
-//		$('#pixtypes_form').on('click', 'input:checkbox', function(){
-//			check_checkbox_checked(this);
-//			$(this).check_for_extended_options();
-//		});
+		//$('#pixtypes_form input:checkbox').each(function(i,e){
+		//	check_checkbox_checked(e);
+		//	$(e).check_for_extended_options();
+		//});
+		//$('#pixtypes_form').on('click', 'input:checkbox', function(){
+		//	check_checkbox_checked(this);
+		//	$(this).check_for_extended_options();
+		//});
 		/** End Checkbox value switcher **/
 
 		/* Ensure groups visibility */
@@ -40,9 +220,7 @@
 				toggleGroup( $( this ).data( 'show_group' ), show );
 			}
 		} );
-
 	} );
-
 
 	var toggleGroup = function( name, show ) {
 		var $group = $( '#' + name );

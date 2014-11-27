@@ -8,7 +8,6 @@ return array(
 			'label'          => __( 'Enable Pix Fields', 'pixfields_txtd' ),
 			'default'        => true,
 			'type'           => 'switch',
-			'display_option' => ''
 		),
 		'allow_edit_on_post_page' => array(
 			'label'          => __( 'Allow Edit Fields', 'pixfields_txtd' ),
@@ -17,7 +16,7 @@ return array(
 			'desc' => 'Let fields edition in post edit page'
 		),
 
-		'select_post_types' => array(
+		'display_on_post_types' => array(
 			'label'          => __( 'Post Types', 'pixfields_txtd' ),
 			'default'        => array('post', 'page'),
 			'type'           => 'post_types_checkbox',

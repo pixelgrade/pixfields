@@ -1,4 +1,5 @@
 /* This stylesheet is used to style the admin option form of the plugin. */
+@import "font-awesome/font-awesome";
 
 .extendable_options {
 	height: 0;
@@ -37,4 +38,203 @@ fieldset.group {
 	.uninstall_area {
 		margin-top: 15px;
 	}
+}
+
+// hide the modal on post edit page but keep the active state
+#poststuff #pixfields_manager {
+	display: none;
+
+	&.active {
+		height: 0;
+		display: block;
+		overflow: hidden;
+
+		.pixfields_manager_modal {
+			position: fixed;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			background: rgba(0, 0, 0, 0.27);
+			z-index: 90000;
+			padding: 3%;
+			text-align: center;
+
+			.hndle, .hndlediv {
+				display: none;
+			}
+
+			.postbox {
+				background: none;
+				border: none;
+			}
+
+			h2.field_title {
+				margin: 0;
+				font-size: 22px;
+				line-height: 50px;
+				color: #444444;
+				text-align: left;
+				position: relative;
+				border-bottom: 1px solid #e9e9e9;
+				padding: 10px 20px !important
+			}
+
+			.pixfields_wrapper {
+				position:relative;
+				margin: 5% auto;
+				width: 550px;
+				background: #fff;
+				max-height: 80%;
+				min-height: 430px;
+				height: 80%;
+				overflow: hidden;
+			}
+
+			.pixfields_box {
+				margin: 0;
+				overflow-y: scroll;
+				position: relative;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 50px;
+				max-height: 60%;
+			}
+
+			ul.pix_fields_list, ul.add_new_pixfield {
+				display: block;
+				float: left;
+				width: 100%;
+				margin: 0;
+
+				li.pixfield {
+					display: block;
+					float: left;
+					clear: both;
+					padding: 5px 0;
+					width: 80%;
+					margin: 0 10%;
+					text-align: left;
+
+					& > span {
+						text-align: center;
+						display: block;
+						float: left;
+					}
+
+					&:hover {
+						.drag {
+							width: 45px;
+							opacity:1;
+						}
+
+						.delete_field {
+							opacity:1;
+							color: #d54e21;
+							text-decoration: underline;
+							line-height: 27px;
+						}
+					}
+				}
+			}
+
+			.drag {
+				padding-top: 5px;
+				width: 45px;
+				opacity: 0;
+				font-size: 16px;
+			}
+
+			.delete_field {
+				opacity:0;
+			}
+
+			.label {
+				width: 220px;
+
+				input {
+					width: 100%;
+				}
+			}
+
+			.filterable {
+				width: 70px;
+				padding-top: 7px;
+			}
+
+			.table_head > li {
+				width: 80%;
+				margin: 0 10%;
+				display: block;
+				float: left;
+				text-align: left;
+				font-weight: bold;
+
+				& span.label {
+					display: block;
+					padding-left: 47px;
+					float: left;
+				}
+
+				& span.filterable {
+					padding-left: 22px;
+				}
+			}
+
+			.pixfields_form, .postbox, .inside, .inside > .row {
+				position: absolute;
+				top:0;left:0;bottom:0;right:0;
+			}
+
+			.control_bar {
+				position: absolute;
+				bottom: 0;
+				left:0;
+				right:0;
+				height: 50px;
+
+				.update_btn_wrapper {
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					display: block;
+					padding: 16px;
+					text-align: right;
+					border-top: 1px solid #dddddd;
+				}
+			}
+		}
+
+	}
+}
+
+#pixfields {
+
+	&.ajax_running {
+		opacity: 0.3;
+	}
+
+	.manage_button_wrapper {
+		padding: 20px 12px;
+		display: block;
+		width: 100%;
+		background: #f5f5f5;
+		border-top: 1px solid #dddddd;
+		left: -12px;
+		bottom: -12px;
+		position: relative;
+		text-align: right;
+		font-size: 14px;
+	}
+}
+
+.ui-state-highlight {
+	float: left;
+	display:block;
+	width: 100%;
+	background-color: rgba(212, 208, 0, 0.66);
+	height: 1.5em;
+	line-height: 1.2em;
 }

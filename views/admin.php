@@ -40,11 +40,12 @@ $errors    = $processor->errors(); ?>
 			<p class="update-nag">
 				<?php _e( 'Settings have been updated.', 'pixfields_txtd' ); ?>
 			</p>
-		<?php endif; ?>
+		<?php endif;
 
-		<?php echo $f = pixfields::form( $config, $processor );
+		echo $f = pixfields::form( $config, $processor );
 		echo $f->field( 'hiddens' )->render();
 		echo $f->field( 'general' )->render();
+		echo $f->field( 'fields_manager' )->render();
 		?>
 
 		<button type="submit" class="button button-primary">

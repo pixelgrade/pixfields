@@ -20,7 +20,7 @@ class PixFieldsPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '0.0.3';
+	protected $version = '0.0.4';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -88,14 +88,53 @@ class PixFieldsPlugin {
 //		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 99999999999 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+		// add the metabox
+		// modal
+		add_action( 'add_meta_boxes', array( $this, 'pixfields_add_modal_meta_box' ) );
+		add_action( 'save_post', array( $this, 'pixfields_save_meta_data' ) );
+		// fields
+		add_action( 'add_meta_boxes', array( $this, 'add_pixfields_meta_box' ) );
+		add_action( 'save_post', array( $this, 'pixfields_save_modal_data' ) );
+
 		// a little hook into the_content
 		add_filter( 'the_content', array( $this, 'hook_into_the_content' ), 10, 1 );
 
 		/**
 		 * Ajax Callbacks
 		 */
-		add_action( 'wp_ajax_pixfields_image_click', array( &$this, 'ajax_click_on_photo' ) );
-		add_action( 'wp_ajax_nopriv_pixfields_image_click', array( &$this, 'ajax_click_on_photo' ) );
+		add_action( 'wp_ajax_save_pixfields', array( $this, 'ajax_save_pixfields' ) );
+//		add_action( 'wp_ajax_nopriv_save_pixfields', array( $this, 'ajax_no_access' ) );
+	}
+
+	function ajax_no_access() {
+		echo 'you have no access here';
+		die();
+	}
+
+	function ajax_save_pixfields(){
+
+		ob_start();
+		if ( isset( $_REQUEST['fields'] ) ) {
+			$fields_string = $_REQUEST['fields'];
+		} else {
+			wp_send_json_error( 'No fields sent' );
+			exit;
+		}
+
+		$post = get_post( $_REQUEST['post_id'] );
+
+		parse_str($fields_string, $fields);
+
+		$fields_manager = $fields['fields_manager'];
+
+		$this->make_fields($fields_manager);
+
+		echo $this->pixfields_meta_box_callback( $post );
+
+		$out =  ob_get_clean();
+
+		wp_send_json_success($out);
+		exit;
 	}
 
 	/**
@@ -162,8 +201,15 @@ class PixFieldsPlugin {
 			return;
 		}
 
+		$current_post_type = get_post_type();
+		$is_post_page = false;
+
+		if ($current_post_type) {
+			$is_post_page = array_key_exists( $current_post_type, self::$plugin_settings['display_on_post_types'] );
+		}
+
 		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
+		if ( $screen->id == $this->plugin_screen_hook_suffix || $is_post_page ) {
 			wp_enqueue_style( $this->plugin_slug . '-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
 		}
 
@@ -181,11 +227,26 @@ class PixFieldsPlugin {
 		}
 
 		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
-			wp_localize_script( $this->plugin_slug . '-admin-script', 'locals', array(
-				'ajax_url' => admin_url( 'admin-ajax.php' )
-			) );
+
+		$current_post_type = get_post_type();
+		$is_post_page = false;
+
+		if ($current_post_type) {
+			$is_post_page = array_key_exists( $current_post_type, self::$plugin_settings['display_on_post_types'] );
+		}
+
+		if ( $screen->id == $this->plugin_screen_hook_suffix || $is_post_page ) {
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery', 'jquery-ui-sortable' ), $this->version );
+
+			$localized_array = array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+			);
+
+			if ( isset( self::$plugin_settings['display_on_post_types'] ) || ! empty( self::$plugin_settings['display_on_post_types'] ) ) {
+				$localized_array['pixfields'] =  self::$plugin_settings['fields_manager'];
+			}
+
+			wp_localize_script( $this->plugin_slug . '-admin-script', 'pixfields_l10n',$localized_array);
 		}
 	}
 
@@ -209,12 +270,10 @@ class PixFieldsPlugin {
 	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
 	 */
 	function add_plugin_admin_menu() {
-
 		$this->plugin_screen_hook_suffix = add_options_page( __( 'PixFields', $this->plugin_slug ), __( 'PixFields', $this->plugin_slug ), 'manage_options', $this->plugin_slug, array(
 			$this,
 			'display_plugin_admin_page'
 		) );
-
 	}
 
 	/**
@@ -229,6 +288,203 @@ class PixFieldsPlugin {
 	 */
 	function add_action_links( $links ) {
 		return array_merge( array( 'settings' => '<a href="' . admin_url( 'options-general.php?page=pixfields' ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>' ), $links );
+	}
+
+	/**
+	 * Adds a box to the main column on any post type checked in settings
+	 */
+	function add_pixfields_meta_box() {
+
+		if ( ! isset( self::$plugin_settings['display_on_post_types'] ) || empty( self::$plugin_settings['display_on_post_types'] ) ) {
+			return;
+		}
+
+		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
+			add_meta_box(
+				'pixfields',
+				__( 'Meta fields', 'pixfield_txtd' ),
+				array( $this, 'pixfields_meta_box_callback' ),
+				$post_type,
+				'side'
+			);
+		}
+	}
+
+	function pixfields_meta_box_callback( $post ) {
+		// Add an nonce field so we can check for it later.
+		wp_nonce_field( 'pixfields_meta_box', 'pixfields_meta_box_nonce' );
+
+		// check if we have fields for this post type
+		if ( isset( self::$plugin_settings['fields_manager'] ) || isset( self::$plugin_settings['fields_manager'][$post->post_type] ) ) { ?>
+			<ul>
+				<?php
+				if ( isset(self::$plugin_settings['fields_manager'][$post->post_type]) ) {
+					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
+
+						$meta_key = 'pixfield_' . $field['meta_key'];
+
+						$value = get_post_meta($post->ID, $meta_key, true); ?>
+						<li>
+							<label for="<?php echo $meta_key; ?>"><?php echo $field['label'];?></label>
+							<br/>
+							<input type="text" id="<?php echo $meta_key; ?>" name="<?php echo $meta_key; ?>" <?php echo ( !empty( $value ) ) ? 'value="'.$value . '"' :''; ?>/>
+						</li>
+					<?php }
+				} ?>
+			</ul>
+			<?php
+		} ?>
+		<span class="manage_button_wrapper">
+			<a href="#" class="open_pixfields_modal"><?php _e('Manage_fields', 'pixfields_txtd'); ?></a>
+		</span>
+	<?php }
+
+	/**
+	 * When the post is saved, saves our custom data.
+	 * @param int $post_id The ID of the post being saved.
+	 */
+	function pixfields_save_meta_data( $post_id ) {
+		/*
+		 * We need to verify this came from our screen and with proper authorization,
+		 * because the save_post action can be triggered at other times.
+		 */
+		// Check if our nonce is set and if it's valid.
+		if ( ! isset( $_POST['pixfields_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pixfields_meta_box_nonce'], 'pixfields_meta_box' ) ) {
+			return;
+		}
+
+		// @TODO are you sure?
+		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
+//		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+//			return;
+//		}
+
+		// Check the user's permissions.
+		if ( isset( $_POST['post_type'] ) && 'page' == $_POST['post_type'] ) {
+
+			if ( ! current_user_can( 'edit_page', $post_id ) ) {
+				return;
+			}
+
+		} else {
+
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				return;
+			}
+		}
+
+		/* OK, it's safe for us to save the data now. */
+
+		// Make sure that it is set.
+		if ( ! isset( $_POST['fields_manager'] ) || ! is_array( $_POST['fields_manager'] ) ) {
+			return;
+		}
+
+		// get only the pixfields values #regex #hack #danger
+		$pixfield_keys = array_intersect_key($_POST, array_flip(preg_grep('/^pixfield_/', array_keys($_POST))));
+
+		foreach ( $pixfield_keys as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+	}
+
+	function pixfields_add_modal_meta_box() {
+
+		if ( ! isset( self::$plugin_settings['display_on_post_types'] ) || empty( self::$plugin_settings['display_on_post_types'] ) ) {
+			return;
+		}
+		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
+			add_meta_box(
+				'pixfields_manager',
+				__( 'Pixfields', 'pixfield_txtd' ),
+				array( $this, 'modal_meta_box_callback' ),
+				$post_type
+			);
+		}
+	}
+
+	function modal_meta_box_callback ( $post ) {
+		// Add an nonce field so we can check for it later.
+		wp_nonce_field( 'pixfields_modal_meta_box', 'pixfields_modal_meta_box_nonce' ); ?>
+
+		<div class="pixfields_manager_modal">
+			<?php
+			$config = include pixfields::pluginpath() . 'plugin-config' . EXT;
+			$processor = pixfields::processor( $config );
+
+			$f = pixfields::form( $config, $processor ); ?>
+			<div class="pixfields_form">
+				<?php echo $f->field( 'fields_manager' )->render(); ?>
+			</div>
+		</div>
+
+	<?php }
+
+	/**
+	 * When the post is saved, saves our custom data.
+	 * @param int $post_id The ID of the post being saved.
+	 * @TODO make this ajjax
+	 */
+	function pixfields_save_modal_data( $post_id ) {
+
+		/*
+		 * We need to verify this came from our screen and with proper authorization,
+		 * because the save_post action can be triggered at other times.
+		 */
+
+		// Check if our nonce is set and if it's valid.
+		if ( ! isset( $_POST['pixfields_modal_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pixfields_modal_meta_box_nonce'], 'pixfields_modal_meta_box' ) ) {
+			return;
+		}
+
+		// @TODO are you sure?
+		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		// Check the user's permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		/* OK, it's safe for us to save the data now. */
+
+		// Make sure that it is set.
+		if ( ! isset( $_POST['fields_manager'] ) || ! is_array( $_POST['fields_manager'] ) ) {
+			return;
+		}
+
+		// Sanitize user input which is given in this array.
+		$fields_manager = $_POST['fields_manager'];
+
+		// Update the meta field in the database.
+		$this->make_fields($fields_manager);
+	}
+
+	function make_fields( $fields_manager ) {
+
+		$current_field_manager = self::$plugin_settings[ 'fields_manager' ];
+
+		$unique_meta_keys = array();
+		foreach ( $fields_manager as $post_type => $fields ){
+			$fields_manager[$post_type] = $fields = array_values( $fields );
+
+			foreach ( $fields as $key => $field ) {
+
+				$current_field_manager[$post_type][$key] = array_map('sanitize_text_field', $field );
+				// @TODO ensure uniqueness and DO NOT depend on order
+				$meta_key = sanitize_title_with_dashes( $field['label'] );
+				if ( in_array($meta_key, $unique_meta_keys) ) {
+					$meta_key = $meta_key . '-'. $key;
+				}
+
+				$current_field_manager[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
+			}
+		}
+
+		// Update the meta field in the database.
+		$this->update_plugin_setting('fields_manager', $current_field_manager);
 	}
 
 	function hook_into_the_content( $content ) {
@@ -248,7 +504,6 @@ class PixFieldsPlugin {
 		$metadata = self::get_template();
 
 		// == This order is important ==
-
 		return $style . $metadata . $content;
 	}
 
@@ -268,10 +523,24 @@ class PixFieldsPlugin {
 			$_located = dirname( __FILE__ ) . '/views/' . $template_name;
 		}
 
+		$metas = get_post_meta( $post->ID );
+
+		// @TODO get only our keys
+		$pixfields = array_intersect_key($metas, array_flip(preg_grep('/^pixfield_/', array_keys($metas))));
+
 		ob_start();
 		require $_located;
 
 		return ob_get_clean();
+
+	}
+
+	function update_plugin_setting( $name, $value ) {
+
+		if ( isset( self::$plugin_settings[ $name ] ) ) {
+			self::$plugin_settings[ $name ] = $value;
+			update_option( 'pixfields_settings', self::$plugin_settings );
+		}
 
 	}
 
@@ -288,3 +557,4 @@ function match_callback( $matches ) {
 	return $matches[0];
 
 }
+

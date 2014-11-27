@@ -31,6 +31,8 @@ return array
 		=> include 'settings/hiddens' . EXT,
 		'general'
 		=> include 'settings/general' . EXT,
+		'fields_manager'
+		=> include 'settings/fields_manager' . EXT,
 	),
 	'processor'      => array
 	(

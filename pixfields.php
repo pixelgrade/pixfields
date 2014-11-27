@@ -67,3 +67,13 @@ register_activation_hook( __FILE__, array( 'PixFieldsPlugin', 'activate' ) );
 
 global $pixfields_plugin;
 $pixfields_plugin = PixFieldsPlugin::get_instance();
+
+function display_pixfields() {
+	echo get_pixfields_template();
+}
+
+function get_pixfields_template() {
+
+	global $pixfields_plugin;
+	return $pixfields_plugin::get_template();
+}
