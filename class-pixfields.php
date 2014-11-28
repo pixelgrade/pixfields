@@ -103,7 +103,10 @@ class PixFieldsPlugin {
 		 * Ajax Callbacks
 		 */
 		add_action( 'wp_ajax_save_pixfields', array( $this, 'ajax_save_pixfields' ) );
-//		add_action( 'wp_ajax_nopriv_save_pixfields', array( $this, 'ajax_no_access' ) );
+		add_action( 'wp_ajax_pixfield_autocomplete', array( $this, 'ajax_pixfield_autocomplete' ) );
+		// only admins can access this
+		add_action( 'wp_ajax_nopriv_save_pixfields', array( $this, 'ajax_no_access' ) );
+		add_action( 'wp_ajax_nopriv_pixfield_autocomplete', array( $this, 'ajax_no_access' ) );
 	}
 
 	function ajax_no_access() {
@@ -135,6 +138,41 @@ class PixFieldsPlugin {
 
 		wp_send_json_success($out);
 		exit;
+	}
+
+	function ajax_pixfield_autocomplete() {
+
+		ob_start();
+		if ( ! isset( $_REQUEST['post_type'] ) && ! isset( $_REQUEST['pixfield'] ) && ! isset( $_REQUEST['value'] ) ) {
+			wp_send_json_error( 'No data recived' );
+			exit;
+		}
+
+		$values = $this->get_meta_values( $_REQUEST['pixfield'], $_REQUEST['post_type'] );
+
+//		var_export($values);
+		echo json_encode($values);
+
+//		echo "(" . $out . ")";
+		exit;
+	}
+
+	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
+
+		global $wpdb;
+
+		if( empty( $key ) )
+			return;
+
+		$r = $wpdb->get_col( $wpdb->prepare( "
+        SELECT DISTINCT LEFT(pm.meta_value , 8) FROM {$wpdb->postmeta} pm
+        LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+        WHERE pm.meta_key = '%s'
+        AND p.post_type = '%s'
+    ", $key, $type ) );
+
+		$r = array_filter( $r );
+		return array_combine($r, $r);
 	}
 
 	/**
@@ -236,7 +274,7 @@ class PixFieldsPlugin {
 		}
 
 		if ( $screen->id == $this->plugin_screen_hook_suffix || $is_post_page ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery', 'jquery-ui-sortable' ), $this->version );
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery', 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), $this->version );
 
 			$localized_array = array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -316,7 +354,7 @@ class PixFieldsPlugin {
 
 		// check if we have fields for this post type
 		if ( isset( self::$plugin_settings['fields_manager'] ) || isset( self::$plugin_settings['fields_manager'][$post->post_type] ) ) { ?>
-			<ul>
+			<ul class="pixfields" data-post_type="<?php echo get_post_type(); ?>">
 				<?php
 				if ( isset(self::$plugin_settings['fields_manager'][$post->post_type]) ) {
 					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
@@ -324,20 +362,23 @@ class PixFieldsPlugin {
 						$meta_key = 'pixfield_' . $field['meta_key'];
 
 						$value = get_post_meta($post->ID, $meta_key, true); ?>
-						<li>
+						<li class="pixfield" data-pixfield="<?php echo $meta_key ?>">
 							<label for="<?php echo $meta_key; ?>"><?php echo $field['label'];?></label>
 							<br/>
-							<input type="text" id="<?php echo $meta_key; ?>" name="<?php echo $meta_key; ?>" <?php echo ( !empty( $value ) ) ? 'value="'.$value . '"' :''; ?>/>
+							<input type="text" class="pixfield_value" name="<?php echo $meta_key; ?>" <?php echo ( !empty( $value ) ) ? 'value="'.$value . '"' :''; ?>/>
 						</li>
 					<?php }
 				} ?>
 			</ul>
 			<?php
-		} ?>
-		<span class="manage_button_wrapper">
-			<a href="#" class="open_pixfields_modal"><?php _e('Manage_fields', 'pixfields_txtd'); ?></a>
-		</span>
-	<?php }
+		}
+
+		if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
+			<span class="manage_button_wrapper">
+				<a href="#" class="open_pixfields_modal"><?php _e( 'Manage fields', 'pixfields_txtd' ); ?></a>
+			</span>
+		<?php }
+	}
 
 	/**
 	 * When the post is saved, saves our custom data.

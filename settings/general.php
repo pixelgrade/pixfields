@@ -4,18 +4,17 @@ return array(
 	'type'    => 'postbox',
 	'label'   => 'General Settings',
 	'options' => array(
-		'enable_pixfields' => array(
-			'label'          => __( 'Enable Pix Fields', 'pixfields_txtd' ),
-			'default'        => true,
-			'type'           => 'switch',
-		),
 		'allow_edit_on_post_page' => array(
 			'label'          => __( 'Allow Edit Fields', 'pixfields_txtd' ),
 			'default'        => true,
 			'type'           => 'switch',
 			'desc' => 'Let fields edition in post edit page'
 		),
-
+		'disable_pixfields' => array(
+			'label'          => __( 'Disable Pix Fields', 'pixfields_txtd' ),
+			'default'        => true,
+			'type'           => 'switch',
+		),
 		'display_on_post_types' => array(
 			'label'          => __( 'Post Types', 'pixfields_txtd' ),
 			'default'        => array('post', 'page'),

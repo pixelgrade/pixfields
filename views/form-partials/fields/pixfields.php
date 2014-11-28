@@ -18,15 +18,16 @@ $test = get_option('pixfields_settings');
 $is_settings_page = false;
 
 if ( isset($_GET['page']) && $_GET['page'] == 'pixfields' ) {
-	$post_types = $form->autovalue('display_on_post_types', array('post', 'page'));
+	$post_types = $form->autovalue('display_on_post_types', array('post' => 'on', 'page' => 'on' ) );
 	$is_settings_page = true;
 } else {
 	$post_types = array( get_post_type() => 'on' );
 
-	if (isset( $values[key($post_types)] ) ) {
-		reset($post_types);
-		$values = $values[key($post_types)];
-	}
+//	if (isset( $values[key($post_types)] ) ) {
+//		reset($post_types);
+//		$values = $values[key($post_types)];
+//		var_dump($values);
+//	}
 }
 
 if ( ! empty( $post_types ) ) { ?>
@@ -49,7 +50,9 @@ if ( ! empty( $post_types ) ) { ?>
 			<div class="pixfields_box">
 				<?php if ( $is_settings_page ) { ?>
 					<h4><?php _e( 'Post type: ', 'pixfields_txtd' );  echo $post_type ?></h4>
-				<?php }?>
+				<?php } else {
+					//$values = $values[$post_type];
+				} ?>
 				<ul class="table_head">
 					<li class="pixfield">
 						<span class="label">
@@ -60,9 +63,9 @@ if ( ! empty( $post_types ) ) { ?>
 				</ul>
 				<ul class="pix_fields_list ui-sortable ui-draggable">
 					<?php
-					if ( ! empty( $values )){
+					if ( ! empty( $values[$post_type] )){
 
-						foreach ( $values as $key => $value ) {
+						foreach ( $values[$post_type] as $key => $value ) {
 
 							$attrs = $key_attrs = $default_attrs = $filterable_atts = array(
 								'name' => $name . '[' . $post_type . ']',

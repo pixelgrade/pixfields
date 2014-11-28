@@ -3,12 +3,27 @@
 
 	$(document ).ready(function(){
 
+		/**
+		 * Modal
+		 **/
+
+		// click on Manage button
+		$(document).on('click', '.open_pixfields_modal', function(ev) {
+			ev.preventDefault();
+			open_modal();
+		});
+
+		// click on close button
+		$(document).on('click', '.media-modal-close', function(ev) {
+			ev.preventDefault();
+			close_modal();
+		});
+
+
 		// add field
 		$(document).on('click', '.add_new_pixfield .add_field', function( ev ){
 			ev.preventDefault();
 			var label = $(this).siblings('.label').find('input')[0];
-
-			debugger;
 			// do not allow fields without  a label so let's check
 			// first force the label field to be required
 			$(label).attr('required', 'required');
@@ -24,8 +39,12 @@
 			var $list = $('.pix_fields_list' ),
 				$new_field = $(this).parent('.pixfield'),
 				post_type = $new_field.data('post_type' ),
-				order = ( $list.get(0).childElementCount >= 0 ) ? $list.get(0).childElementCount : 1,
+				order = 0,
 				filter = $($new_field).find('.filterable input')[0].checked;
+
+			if ( typeof $list.get(0) !== 'undefined') {
+				order = ( $list.get(0).childElementCount >= 0 ) ? $list.get(0).childElementCount : 1
+			}
 
 			// we only need the value
 			var label_val = $(label).val();
@@ -60,22 +79,6 @@
 		});
 		$( "ul.ui-sortable, .ui-sortable li" ).disableSelection();
 
-		/**
-		 * Modal
-		 **/
-
-		// click on Manage button
-		$(document).on('click', '.open_pixfields_modal', function(ev) {
-			ev.preventDefault();
-			open_modal();
-		});
-
-		// click on close button
-		$(document).on('click', '.media-modal-close', function(ev) {
-			ev.preventDefault();
-			close_modal();
-		});
-
 		// update pixfields
 		$(document).on('click', '.update_pixfields', function(ev) {
 			ev.preventDefault();
@@ -106,6 +109,51 @@
 			});
 
 			close_modal();
+		});
+
+		// Meta fields
+
+		$( '.pixfield_value' ).each(function(){
+
+			var the_value = $(this).val(),
+				post_type = $(this ).parents('.pixfields' ).data('post_type' ),
+				pixfield = $(this ).parents('.pixfield' ).data('pixfield');
+
+			$(this).autocomplete({
+				source: function( request, response ) {
+					$.ajax({
+						url: pixfields_l10n.ajax_url,
+						dataType: "json",
+						data: {
+							action: 'pixfield_autocomplete',
+							post_type: post_type,
+							pixfield: pixfield,
+							value: the_value
+						},
+						success: function( data ) {
+							response($.map(data, function(v,i){
+								return {
+									label: v,
+									value: v
+								};
+							}));
+						}
+					});
+				},
+				minLength: 2
+				//select: function( event, ui ) {
+				//	console.log( ui );
+				//	log( ui.item ?
+				//	"Selected: " + ui.item.label :
+				//	"Nothing selected, input was " + this.value);
+				//},
+				//open: function() {
+				//	//$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+				//},
+				//close: function() {
+				//	//$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+				//}
+			});
 		});
 	});
 
