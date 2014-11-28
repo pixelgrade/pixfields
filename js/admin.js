@@ -19,7 +19,6 @@
 			close_modal();
 		});
 
-
 		// add field
 		$(document).on('click', '.add_new_pixfield .add_field', function( ev ){
 			ev.preventDefault();
@@ -63,7 +62,10 @@
 		// delete field
 		$(document ).on('click', '.pixfields_box .delete_field', function( ev, el){
 			ev.preventDefault();
-			var response = confirm('Are you sure?');
+
+			var field = $(this ).siblings('.label' ).children('input' ).val();
+
+			var response = confirm('Do you really want to delete the field '+field+'?');
 			if ( ! response ) {
 				return;
 			}
@@ -158,11 +160,15 @@
 	});
 
 	var close_modal = function() {
+		// clear our classes
 		$('#pixfields_manager' ).removeClass('active');
+		$('body' ).removeClass('pixfields_modal_visible')
 	};
 
 	var open_modal = function() {
 		$('#pixfields_manager' ).addClass('active');
+		// let the body know about our modal
+		$('body').addClass('pixfields_modal_visible')
 	};
 
 	var get_field_template = function( args ) {

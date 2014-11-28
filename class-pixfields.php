@@ -141,31 +141,24 @@ class PixFieldsPlugin {
 	}
 
 	function ajax_pixfield_autocomplete() {
-
 		ob_start();
 		if ( ! isset( $_REQUEST['post_type'] ) && ! isset( $_REQUEST['pixfield'] ) && ! isset( $_REQUEST['value'] ) ) {
 			wp_send_json_error( 'No data recived' );
 			exit;
 		}
-
 		$values = $this->get_meta_values( $_REQUEST['pixfield'], $_REQUEST['post_type'] );
-
-//		var_export($values);
 		echo json_encode($values);
-
-//		echo "(" . $out . ")";
 		exit;
 	}
 
 	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
-
 		global $wpdb;
 
 		if( empty( $key ) )
 			return;
 
 		$r = $wpdb->get_col( $wpdb->prepare( "
-        SELECT DISTINCT LEFT(pm.meta_value , 8) FROM {$wpdb->postmeta} pm
+        SELECT DISTINCT LEFT(pm.meta_value , 25) FROM {$wpdb->postmeta} pm
         LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
         WHERE pm.meta_key = '%s'
         AND p.post_type = '%s'
