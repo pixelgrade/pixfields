@@ -125,21 +125,22 @@ class PixFieldsPlugin {
 		}
 
 		$post = get_post( $_REQUEST['post_id'] );
-		$fields_manager = array();
 
 		parse_str($fields_string, $fields);
 
 		if ( !empty ( $fields['fields_manager'] ) ) {
-			$fields_manager = $fields['fields_manager'];
+			$this->make_fields($fields['fields_manager']);
+			echo $this->pixfields_meta_box_callback( $post );
+			$out =  ob_get_clean();
+			// remove whitespaces
+//			$out = preg_replace('/\\n+/', '', $out);
+//			$out = preg_replace('/\\t+/', '', $out);
+
+			wp_send_json_success($out);
+			exit;
 		}
 
-		$this->make_fields($fields_manager);
-
-		echo $this->pixfields_meta_box_callback( $post );
-
-		$out =  ob_get_clean();
-
-		wp_send_json_success($out);
+		wp_send_json_error( 'Nothing to send back' );
 		exit;
 	}
 
@@ -355,6 +356,7 @@ class PixFieldsPlugin {
 		} ?>
 		<ul class="pixfields" data-post_type="<?php echo $post_type; ?>">
 			<?php // check if we have fields for this post type
+
 			if ( isset( self::$plugin_settings['fields_manager'][$post->post_type] ) && ! empty( self::$plugin_settings['fields_manager'][$post->post_type] ) ) {
 					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
 						$meta_key = 'pixfield_' . $field['meta_key'];
@@ -536,23 +538,19 @@ class PixFieldsPlugin {
 	}
 
 	function hook_into_the_content( $content ) {
-		if ( get_post_type() !== 'proof_gallery' || post_password_required() ) {
+		if ( ! isset(self::$plugin_settings['display_place'] ) ) {
 			return $content;
 		}
-		$style = '';
-		// == This order is important ==
-		$pixfields_path = self::get_base_path();
-		if ( file_exists( $pixfields_path . 'css/public.css' ) ) {
-			ob_start();
-			echo '<style>';
-			include( $pixfields_path . 'css/public.css' );
-			echo '</style>';
-			$style = ob_get_clean();
-		}
-		$metadata = self::get_template();
+		global $post;
 
-		// == This order is important ==
-		return $style . $metadata . $content;
+		$metadata = self::get_template( $post->ID );
+
+		if ( self::$plugin_settings['display_place'] == 'after_content' ) {
+			return $content . $metadata;
+		} else if ( self::$plugin_settings['display_place'] == 'before_content ') {
+			return $metadata . $content;
+		}
+		return $content;
 	}
 
 	static function get_template( $post_id = null ) {
@@ -571,24 +569,34 @@ class PixFieldsPlugin {
 			$_located = dirname( __FILE__ ) . '/views/' . $template_name;
 		}
 
-		$metas = get_post_meta( $post->ID );
-
-		// @TODO get only our keys
-		$pixfields = array_intersect_key($metas, array_flip(preg_grep('/^pixfield_/', array_keys($metas))));
+		$pixfields = self::get_post_pixfields( $post->post_type, $post->ID );
 
 		ob_start();
+
 		require $_located;
 
 		return ob_get_clean();
 
 	}
 
+	static function get_post_pixfields ( $post_type, $post_id ){
+		$keys = array();
+		if ( isset(self::$plugin_settings['fields_manager'][$post_type] ) ) {
+			foreach (self::$plugin_settings['fields_manager'][$post_type] as $field ) {
+				$keys[ $field['meta_key'] ] = get_post_meta( $post_id, 'pixfield_' . $field['meta_key'], true);
+			}
+		}
+
+		return $keys;
+	}
+
 	function update_plugin_setting( $name, $value ) {
 
-		if ( isset( self::$plugin_settings[ $name ] ) ) {
+		// it doesn't matter if the settings doesn't exist we create one then
+//		if ( isset( self::$plugin_settings[ $name ] ) ) {
 			self::$plugin_settings[ $name ] = $value;
 			update_option( 'pixfields_settings', self::$plugin_settings );
-		}
+//		}
 
 	}
 
