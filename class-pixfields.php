@@ -345,11 +345,14 @@ class PixFieldsPlugin {
 		// Add an nonce field so we can check for it later.
 		wp_nonce_field( 'pixfields_meta_box', 'pixfields_meta_box_nonce' );
 
-		// check if we have fields for this post type
-		if ( isset( self::$plugin_settings['fields_manager'] ) || isset( self::$plugin_settings['fields_manager'][$post->post_type] ) ) { ?>
-			<ul class="pixfields" data-post_type="<?php echo get_post_type(); ?>">
-				<?php
-				if ( isset(self::$plugin_settings['fields_manager'][$post->post_type]) ) {
+		// these settings depend on post type
+		$post_type = get_post_type();
+		if ( empty( $post_type ) ) {
+			return false;
+		} ?>
+		<ul class="pixfields" data-post_type="<?php echo $post_type; ?>">
+			<?php // check if we have fields for this post type
+			if ( isset( self::$plugin_settings['fields_manager'] ) || isset( self::$plugin_settings['fields_manager'][$post->post_type] ) || !empty( self::$plugin_settings['fields_manager'][$post->post_type] ) ) {
 					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
 
 						$meta_key = 'pixfield_' . $field['meta_key'];
@@ -360,13 +363,12 @@ class PixFieldsPlugin {
 							<br/>
 							<input type="text" class="pixfield_value" name="<?php echo $meta_key; ?>" <?php echo ( !empty( $value ) ) ? 'value="'.$value . '"' :''; ?>/>
 						</li>
-					<?php }
-				} ?>
-			</ul>
-			<?php
-		}
-
-		if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
+					<?php } ?>
+				</ul>
+				<?php
+			} ?>
+		</ul>
+		<?php if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
 			<span class="manage_button_wrapper">
 				<a href="#" class="open_pixfields_modal"><?php _e( 'Manage fields', 'pixfields_txtd' ); ?></a>
 			</span>
