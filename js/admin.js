@@ -188,13 +188,13 @@
 			'<li class="pixfield" data-order="' + order + '">' +
 				'<span class="drag"><i class="fa fa-arrows"></i></span>' +
 				'<span class="label">' +
-					'<input type="text" name="fields_manager['+post_type+']['+ order +'][label]" value="' + label + '" />' +
+					'<input type="text" name="pixfields_list['+post_type+']['+ order +'][label]" value="' + label + '" />' +
 				'</span>' +
 				//'<span class="default_value">' +
-				//	'<input type="text" name="fields_manager['+post_type+']['+ order +'][default]" />' +
+				//	'<input type="text" name="pixfields_list['+post_type+']['+ order +'][default]" />' +
 				//'</span>' +
 				'<span class="filterable">' +
-					'<input type="checkbox" name="fields_manager['+post_type+']['+ order +'][filter]" ' + filter + '/>' +
+					'<input type="checkbox" name="pixfields_list['+post_type+']['+ order +'][filter]" ' + filter + '/>' +
 				'</span>' +
 				'<a href="#" class="delete_field">Delete</a>' +
 			'</li>'
@@ -213,7 +213,7 @@
 	//
 	//	$(this).each( function( key, element ) {
 	//
-	//		var name = $(this ).attr('name').replace('fields_manager[', '');
+	//		var name = $(this ).attr('name').replace('pixfields_list[', '');
 	//		name = name.substring(0, name.length - 1 );
 	//
 	//		var keys = name.split(']['),

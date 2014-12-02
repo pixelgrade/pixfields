@@ -45,7 +45,7 @@ $errors    = $processor->errors(); ?>
 		echo $f = pixfields::form( $config, $processor );
 		echo $f->field( 'hiddens' )->render();
 		echo $f->field( 'general' )->render();
-		echo $f->field( 'fields_manager' )->render(); ?>
+		//echo $f->field( 'fields_manager' )->render(); ?>
 
 		<button type="submit" class="button button-primary">
 			<?php _e( 'Save Changes', 'pixfields_txtd' ); ?>

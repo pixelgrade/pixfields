@@ -12,7 +12,7 @@ return array(
 		),
 		'display_on_post_types' => array(
 			'label'          => __( 'Post Types', 'pixfields_txtd' ),
-			'default'        => array('post', 'page'),
+			'default'        => array('post' => 'on', 'page' => 'on'),
 			'type'           => 'post_types_checkbox',
 			'description' => 'Which post types should have fields'
 		),

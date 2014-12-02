@@ -7,14 +7,14 @@
  * string       $number_of_images   Count attachments
  * string       $columns            Number of columns
  */
-var_dump($pixfields);
+
 if ( !isset( $pixfields ) ) return; ?>
 <div class="pixfields_box" >
-	<ul>
+	<ul class="pixfields_list">
 	<?php foreach ( $pixfields as $label => $pixfield) { ?>
-		<li>
+		<li class="pixfield">
 			<strong><?php echo $label; ?></strong> : <?php echo $pixfield; ?>
 		</li>
-	<?php }?>
+	<?php } ?>
 	</ul>
 </div>

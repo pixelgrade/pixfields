@@ -60,6 +60,8 @@ class PixFieldsPlugin {
 
 	public static $plugin_settings;
 
+	public static $fields_list;
+
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
 	 * @since     1.0.0
@@ -69,6 +71,7 @@ class PixFieldsPlugin {
 		$this->plugin_basepath = plugin_dir_path( __FILE__ );
 		$this->config          = self::config();
 		self::$plugin_settings = get_option( 'pixfields_settings' );
+		self::$fields_list = get_option( 'pixfields_list' );
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
@@ -128,8 +131,8 @@ class PixFieldsPlugin {
 
 		parse_str($fields_string, $fields);
 
-		if ( !empty ( $fields['fields_manager'] ) ) {
-			$this->make_fields($fields['fields_manager']);
+		if ( !empty ( $fields['pixfields_list'] ) ) {
+			$this->make_fields($fields['pixfields_list']);
 			echo $this->pixfields_meta_box_callback( $post );
 			$out =  ob_get_clean();
 			// remove whitespaces
@@ -278,7 +281,7 @@ class PixFieldsPlugin {
 			);
 
 			if ( isset( self::$plugin_settings['display_on_post_types'] ) || ! empty( self::$plugin_settings['display_on_post_types'] ) ) {
-				$localized_array['pixfields'] =  self::$plugin_settings['fields_manager'];
+				$localized_array['pixfields'] =  self::$fields_list;
 			}
 
 			wp_localize_script( $this->plugin_slug . '-admin-script', 'pixfields_l10n',$localized_array);
@@ -357,8 +360,8 @@ class PixFieldsPlugin {
 		<ul class="pixfields" data-post_type="<?php echo $post_type; ?>">
 			<?php // check if we have fields for this post type
 
-			if ( isset( self::$plugin_settings['fields_manager'][$post->post_type] ) && ! empty( self::$plugin_settings['fields_manager'][$post->post_type] ) ) {
-					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
+			if ( isset( self::$fields_list[$post->post_type] ) && ! empty( self::$fields_list[$post->post_type] ) ) {
+					foreach ( self::$fields_list[$post->post_type] as $key => $field ) {
 						$meta_key = 'pixfield_' . $field['meta_key'];
 						$value = get_post_meta($post->ID, $meta_key, true); ?>
 						<li class="pixfield" data-pixfield="<?php echo $meta_key ?>">
@@ -416,7 +419,7 @@ class PixFieldsPlugin {
 		/* OK, it's safe for us to save the data now. */
 
 		// Make sure that it is set.
-		if ( ! isset( $_POST['fields_manager'] ) || ! is_array( $_POST['fields_manager'] ) ) {
+		if ( ! isset( $_POST['pixfields_list'] ) || ! is_array( $_POST['pixfields_list'] ) ) {
 			return;
 		}
 
@@ -491,49 +494,48 @@ class PixFieldsPlugin {
 		/* OK, it's safe for us to save the data now. */
 
 		// Make sure that it is set.
-		if ( ! isset( $_POST['fields_manager'] ) || ! is_array( $_POST['fields_manager'] ) ) {
+		if ( ! isset( $_POST['pixfields_list'] ) || ! is_array( $_POST['pixfields_list'] ) ) {
 			return;
 		}
 
 		// Sanitize user input which is given in this array.
-		$fields_manager = $_POST['fields_manager'];
+		$pixfields_list = $_POST['pixfields_list'];
 
 		// Update the meta field in the database.
-		$this->make_fields($fields_manager);
+		$this->make_fields($pixfields_list);
 	}
 
-	function make_fields( $fields_manager ) {
-
-		$current_field_manager = self::$plugin_settings[ 'fields_manager' ];
-
+	function make_fields( $pixfields_list ) {
 		$unique_meta_keys = array();
-		if ( ! empty ( $fields_manager ) ) {
-			foreach ( $fields_manager as $post_type => $fields ){
 
+		if ( ! empty ( $pixfields_list ) ) {
+			foreach ( $pixfields_list as $post_type => $fields ){
+
+				// check if this post type has fields
 				if ( empty( $fields ) ) {
-					$current_field_manager[$post_type] = array();
+					self::$fields_list[$post_type] = array();
 					continue;
 				}
 
-				$fields_manager[$post_type] = $fields = array_values( $fields );
+				$fields = array_values( $fields );
 
 				foreach ( $fields as $key => $field ) {
 
-					$current_field_manager[$post_type][$key] = array_map('sanitize_text_field', $field );
+					self::$fields_list[$post_type][$key] = array_map('sanitize_text_field', $field );
 					// @TODO ensure uniqueness and DO NOT depend on order
 					$meta_key = sanitize_title_with_dashes( $field['label'] );
 					if ( in_array($meta_key, $unique_meta_keys) ) {
 						$meta_key = $meta_key . '-'. $key;
 					}
 
-					$current_field_manager[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
+					self::$fields_list[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
 				}
 			}
 
 			// Update the meta field in the database.
-			$this->update_plugin_setting('fields_manager', $current_field_manager);
+			update_option('pixfields_list', self::$fields_list);
 		} else {
-			$this->update_plugin_setting('fields_manager', $fields_manager);
+			update_option('pixfields_list', array());
 		}
 	}
 
@@ -544,10 +546,9 @@ class PixFieldsPlugin {
 		global $post;
 
 		$metadata = self::get_template( $post->ID );
-
 		if ( self::$plugin_settings['display_place'] == 'after_content' ) {
 			return $content . $metadata;
-		} else if ( self::$plugin_settings['display_place'] == 'before_content ') {
+		} elseif ( self::$plugin_settings['display_place'] == 'before_content') {
 			return $metadata . $content;
 		}
 		return $content;
@@ -581,8 +582,8 @@ class PixFieldsPlugin {
 
 	static function get_post_pixfields ( $post_type, $post_id ){
 		$keys = array();
-		if ( isset(self::$plugin_settings['fields_manager'][$post_type] ) ) {
-			foreach (self::$plugin_settings['fields_manager'][$post_type] as $field ) {
+		if ( isset(self::$fields_list[$post_type] ) ) {
+			foreach (self::$fields_list[$post_type] as $field ) {
 				$keys[ $field['meta_key'] ] = get_post_meta( $post_id, 'pixfield_' . $field['meta_key'], true);
 			}
 		}

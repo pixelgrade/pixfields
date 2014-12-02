@@ -42,10 +42,11 @@ return array
 		(
 			// callbacks to run before update process
 			// cleanup and validation has been performed on data
+			'save_settings'
 		),
 		'postupdate' => array
 		(
-			'save_settings'
+
 		),
 	),
 	'cleanup'        => array
