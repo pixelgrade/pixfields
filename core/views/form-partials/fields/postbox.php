@@ -9,7 +9,7 @@
 /* @var string $rendering */
 
 ?>
-<div class="postbox">
+<div class="postbox<?php if ( !empty( $css_class ) ) { echo ' ' . $css_class; } ?>">
 	<div class="handlediv" title="Click to toggle"><br></div>
 	<h3 class="hndle"><span><?php echo $label ?></span></h3>
 

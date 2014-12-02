@@ -125,10 +125,13 @@ class PixFieldsPlugin {
 		}
 
 		$post = get_post( $_REQUEST['post_id'] );
+		$fields_manager = array();
 
 		parse_str($fields_string, $fields);
 
-		$fields_manager = $fields['fields_manager'];
+		if ( !empty ( $fields['fields_manager'] ) ) {
+			$fields_manager = $fields['fields_manager'];
+		}
 
 		$this->make_fields($fields_manager);
 
@@ -346,17 +349,15 @@ class PixFieldsPlugin {
 		wp_nonce_field( 'pixfields_meta_box', 'pixfields_meta_box_nonce' );
 
 		// these settings depend on post type
-		$post_type = get_post_type();
+		$post_type = $post->post_type;
 		if ( empty( $post_type ) ) {
 			return false;
 		} ?>
 		<ul class="pixfields" data-post_type="<?php echo $post_type; ?>">
 			<?php // check if we have fields for this post type
-			if ( isset( self::$plugin_settings['fields_manager'] ) || isset( self::$plugin_settings['fields_manager'][$post->post_type] ) || !empty( self::$plugin_settings['fields_manager'][$post->post_type] ) ) {
+			if ( isset( self::$plugin_settings['fields_manager'][$post->post_type] ) && ! empty( self::$plugin_settings['fields_manager'][$post->post_type] ) ) {
 					foreach ( self::$plugin_settings['fields_manager'][$post->post_type] as $key => $field ) {
-
 						$meta_key = 'pixfield_' . $field['meta_key'];
-
 						$value = get_post_meta($post->ID, $meta_key, true); ?>
 						<li class="pixfield" data-pixfield="<?php echo $meta_key ?>">
 							<label for="<?php echo $meta_key; ?>"><?php echo $field['label'];?></label>
@@ -364,11 +365,12 @@ class PixFieldsPlugin {
 							<input type="text" class="pixfield_value" name="<?php echo $meta_key; ?>" <?php echo ( !empty( $value ) ) ? 'value="'.$value . '"' :''; ?>/>
 						</li>
 					<?php } ?>
-				</ul>
 				<?php
 			} ?>
 		</ul>
-		<?php if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
+
+		<?php
+		if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
 			<span class="manage_button_wrapper">
 				<a href="#" class="open_pixfields_modal"><?php _e( 'Manage fields', 'pixfields_txtd' ); ?></a>
 			</span>
@@ -503,24 +505,34 @@ class PixFieldsPlugin {
 		$current_field_manager = self::$plugin_settings[ 'fields_manager' ];
 
 		$unique_meta_keys = array();
-		foreach ( $fields_manager as $post_type => $fields ){
-			$fields_manager[$post_type] = $fields = array_values( $fields );
+		if ( ! empty ( $fields_manager ) ) {
+			foreach ( $fields_manager as $post_type => $fields ){
 
-			foreach ( $fields as $key => $field ) {
-
-				$current_field_manager[$post_type][$key] = array_map('sanitize_text_field', $field );
-				// @TODO ensure uniqueness and DO NOT depend on order
-				$meta_key = sanitize_title_with_dashes( $field['label'] );
-				if ( in_array($meta_key, $unique_meta_keys) ) {
-					$meta_key = $meta_key . '-'. $key;
+				if ( empty( $fields ) ) {
+					$current_field_manager[$post_type] = array();
+					continue;
 				}
 
-				$current_field_manager[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
-			}
-		}
+				$fields_manager[$post_type] = $fields = array_values( $fields );
 
-		// Update the meta field in the database.
-		$this->update_plugin_setting('fields_manager', $current_field_manager);
+				foreach ( $fields as $key => $field ) {
+
+					$current_field_manager[$post_type][$key] = array_map('sanitize_text_field', $field );
+					// @TODO ensure uniqueness and DO NOT depend on order
+					$meta_key = sanitize_title_with_dashes( $field['label'] );
+					if ( in_array($meta_key, $unique_meta_keys) ) {
+						$meta_key = $meta_key . '-'. $key;
+					}
+
+					$current_field_manager[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
+				}
+			}
+
+			// Update the meta field in the database.
+			$this->update_plugin_setting('fields_manager', $current_field_manager);
+		} else {
+			$this->update_plugin_setting('fields_manager', $fields_manager);
+		}
 	}
 
 	function hook_into_the_content( $content ) {

@@ -100,6 +100,7 @@ class PixfieldsFormFieldImpl extends PixfieldsHTMLElementImpl implements Pixfiel
 		$desc      = $this->getmeta( 'desc', '' );
 		$description= $this->getmeta( 'description', '' );
 		$rendering = $this->getmeta( 'rendering', 'standard' );
+		$css_class= $this->getmeta( 'css_class', '' );
 
 		// cleaned name (names may be "something[]")
 		$idname = preg_replace( '/[^a-zA-Z0-9_-]/', '', $name );
