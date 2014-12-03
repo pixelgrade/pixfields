@@ -73,7 +73,48 @@ function display_pixfields() {
 }
 
 function get_pixfields_template() {
-
 	global $pixfields_plugin;
 	return $pixfields_plugin::get_template();
+}
+
+function get_pixfield( $key , $post_id = null ) {
+
+	if ( $post_id  == null ) {
+		global $post;
+		$post_id = $post->ID;
+	}
+
+	return get_post_meta( $post_id, 'pixfield_' . $key, true );
+}
+
+function get_pixfields ( $post_id = null ) {
+	global $pixfields_plugin;
+	if ( $post_id == null ) {
+		global $post;
+	} else {
+		$post = get_post($post_id);
+	}
+
+	$post_id = $post->ID;
+	$post_type = $post->post_type;
+
+	return $pixfields_plugin::get_post_pixfields($post_type, $post_id);
+}
+
+function get_filterable_pixfields_keys( $post_type ) {
+
+	global $pixfields_plugin;
+
+	$return = array();
+	if ( isset( $pixfields_plugin::$fields_list[$post_type]  ) ) {
+		foreach ( $pixfields_plugin::$fields_list[$post_type] as $key => $fields ) {
+
+			if ( isset( $fields['filter'] ) ) {
+				$return[$fields['meta_key']] = $fields['label'];
+			}
+		}
+	}
+
+	return $return;
+
 }
