@@ -23,15 +23,12 @@
 		$(document).on('click', '.add_new_pixfield .add_field', function( ev ){
 			ev.preventDefault();
 			var label = $(this).siblings('.label').find('input')[0];
-			// do not allow fields without  a label so let's check
+			// do not allow fields without  a label
 			// first force the label field to be required
 			$(label).attr('required', 'required');
 			if ( ! label.checkValidity() ) {
 				label.reportValidity();
-
-				// remove our atts before exit
-				$(label).attr('required', false);
-				return;
+				return false;
 			}
 			$(label ).attr('required', false);
 
@@ -85,8 +82,24 @@
 		$(document).on('click', '.update_pixfields', function(ev) {
 			ev.preventDefault();
 
-			var $pixfields_container = $('#pixfields .inside' ),
-				pixfields = $(this).parents('.pixfields_form' ).find('select, textarea, input');
+			var $pixfields_container = $('#pixfields .inside'),
+				pixfields = $(this).parents('.pixfields_form').find('.pix_fields_list input');
+
+			var to_break = false;
+			$(pixfields).each(function(ui, el){
+
+				if ( $(el).attr('type') == 'text' ) {
+					$(el).attr('required', true);
+				}
+
+				if ( ! el.checkValidity() ) {
+					el.reportValidity();
+					to_break = true;
+				}
+
+			});
+
+			if ( to_break ) return false;
 
 			$pixfields_container.addClass('ajax_running');
 			var serialized_data = serialize_form(pixfields);
@@ -114,7 +127,6 @@
 		});
 
 		// Meta fields
-
 		$( '.pixfield_value' ).each(function(){
 
 			var the_value = $(this).val(),
@@ -162,13 +174,25 @@
 	var close_modal = function() {
 		// clear our classes
 		$('#pixfields_manager' ).removeClass('active');
-		$('body' ).removeClass('pixfields_modal_visible')
+
+		// remove our atts before exit
+		remove_required_atts();
+
+		$('body' ).removeClass('pixfields_modal_visible');
 	};
 
 	var open_modal = function() {
 		$('#pixfields_manager' ).addClass('active');
+
+		// remove our atts before exit
+		remove_required_atts();
+
 		// let the body know about our modal
-		$('body').addClass('pixfields_modal_visible')
+		$('body').addClass('pixfields_modal_visible');
+	};
+
+	var remove_required_atts = function() {
+		$('.pixfields_wrapper' ).find('input').attr('required', false);
 	};
 
 	var get_field_template = function( args ) {
