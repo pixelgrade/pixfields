@@ -133,6 +133,7 @@
 							value: the_value
 						},
 						success: function( data ) {
+							console.log( data );
 							response($.map(data, function(v,i){
 								return {
 									label: v,

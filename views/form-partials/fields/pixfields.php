@@ -13,7 +13,7 @@
 
 $values = $form->autovalue($name, $default);
 
-$test = get_option('pixfields_settings');
+$values = get_option('pixfields_list');
 
 $is_settings_page = false;
 
@@ -22,12 +22,6 @@ if ( isset($_GET['page']) && $_GET['page'] == 'pixfields' ) {
 	$is_settings_page = true;
 } else {
 	$post_types = array( get_post_type() => 'on' );
-
-//	if (isset( $values[key($post_types)] ) ) {
-//		reset($post_types);
-//		$values = $values[key($post_types)];
-//		var_dump($values);
-//	}
 }
 
 if ( ! empty( $post_types ) ) { ?>

@@ -97,7 +97,7 @@ class PixFieldsPlugin {
 		add_action( 'save_post', array( $this, 'pixfields_save_meta_data' ) );
 		// fields
 		add_action( 'add_meta_boxes', array( $this, 'add_pixfields_meta_box' ) );
-		add_action( 'save_post', array( $this, 'pixfields_save_modal_data' ) );
+//		add_action( 'save_post', array( $this, 'pixfields_save_modal_data' ) );
 
 		// a little hook into the_content
 		add_filter( 'the_content', array( $this, 'hook_into_the_content' ), 10, 1 );
@@ -110,52 +110,6 @@ class PixFieldsPlugin {
 		// only admins can access this
 		add_action( 'wp_ajax_nopriv_save_pixfields', array( $this, 'ajax_no_access' ) );
 		add_action( 'wp_ajax_nopriv_pixfield_autocomplete', array( $this, 'ajax_no_access' ) );
-	}
-
-	function ajax_no_access() {
-		echo 'you have no access here';
-		die();
-	}
-
-	function ajax_save_pixfields(){
-
-		ob_start();
-		if ( isset( $_REQUEST['fields'] ) ) {
-			$fields_string = $_REQUEST['fields'];
-		} else {
-			wp_send_json_error( 'No fields sent' );
-			exit;
-		}
-
-		$post = get_post( $_REQUEST['post_id'] );
-
-		parse_str($fields_string, $fields);
-
-		if ( !empty ( $fields['pixfields_list'] ) ) {
-			$this->make_fields($fields['pixfields_list']);
-			echo $this->pixfields_meta_box_callback( $post );
-			$out =  ob_get_clean();
-			// remove whitespaces
-//			$out = preg_replace('/\\n+/', '', $out);
-//			$out = preg_replace('/\\t+/', '', $out);
-
-			wp_send_json_success($out);
-			exit;
-		}
-
-		wp_send_json_error( 'Nothing to send back' );
-		exit;
-	}
-
-	function ajax_pixfield_autocomplete() {
-		ob_start();
-		if ( ! isset( $_REQUEST['post_type'] ) && ! isset( $_REQUEST['pixfield'] ) && ! isset( $_REQUEST['value'] ) ) {
-			wp_send_json_error( 'No data recived' );
-			exit;
-		}
-		$values = $this->get_meta_values( $_REQUEST['pixfield'], $_REQUEST['post_type'] );
-		echo json_encode($values);
-		exit;
 	}
 
 	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
@@ -468,44 +422,86 @@ class PixFieldsPlugin {
 	 * @param int $post_id The ID of the post being saved.
 	 * @TODO make this ajjax
 	 */
-	function pixfields_save_modal_data( $post_id ) {
 
-		/*
-		 * We need to verify this came from our screen and with proper authorization,
-		 * because the save_post action can be triggered at other times.
-		 */
+//	function pixfields_save_modal_data( $post_id ) {
+//
+//		/*
+//		 * We need to verify this came from our screen and with proper authorization,
+//		 * because the save_post action can be triggered at other times.
+//		 */
+//		// Check if our nonce is set and if it's valid.
+//		if ( ! isset( $_POST['pixfields_modal_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pixfields_modal_meta_box_nonce'], 'pixfields_modal_meta_box' ) ) {
+//			return;
+//		}
+//
+//		// @TODO are you sure?
+//		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
+//		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+//			return;
+//		}
+//
+//		// Check the user's permissions.
+//		if ( ! current_user_can( 'manage_options' ) ) {
+//			return;
+//		}
+//
+//		/* OK, it's safe for us to save the data now. */
+//
+//		// Make sure that it is set.
+//		if ( ! isset( $_POST['pixfields_list'] ) || ! is_array( $_POST['pixfields_list'] ) ) {
+//			return;
+//		}
+//
+//		// Sanitize user input which is given in this array.
+//		$pixfields_list = $_POST['pixfields_list'];
+//
+//		// Update the meta field in the database.
+//		$this->make_fields($pixfields_list);
+//	}
 
-		// Check if our nonce is set and if it's valid.
-		if ( ! isset( $_POST['pixfields_modal_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pixfields_modal_meta_box_nonce'], 'pixfields_modal_meta_box' ) ) {
-			return;
-		}
-
-		// @TODO are you sure?
-		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
-		}
-
-		// Check the user's permissions.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		/* OK, it's safe for us to save the data now. */
-
-		// Make sure that it is set.
-		if ( ! isset( $_POST['pixfields_list'] ) || ! is_array( $_POST['pixfields_list'] ) ) {
-			return;
-		}
-
-		// Sanitize user input which is given in this array.
-		$pixfields_list = $_POST['pixfields_list'];
-
-		// Update the meta field in the database.
-		$this->make_fields($pixfields_list);
+	function ajax_no_access() {
+		echo 'you have no access here';
+		die();
 	}
 
-	function make_fields( $pixfields_list ) {
+	function ajax_save_pixfields(){
+
+		ob_start();
+		if ( isset( $_REQUEST['fields'] ) ) {
+			$fields_string = $_REQUEST['fields'];
+		} else {
+			wp_send_json_error( 'No fields sent' );
+			exit;
+		}
+
+		$post = get_post( $_REQUEST['post_id'] );
+
+		parse_str($fields_string, $fields);
+
+		if ( ! isset ( $fields['pixfields_list'] ) ) {
+			$fields['pixfields_list'] = array( $post->post_type => array() );
+		}
+
+		$this->make_fields( $post->post_type, $fields['pixfields_list'] );
+		echo $this->pixfields_meta_box_callback( $post );
+		$out =  ob_get_clean();
+		wp_send_json_success($out);
+		exit;
+
+	}
+
+	function ajax_pixfield_autocomplete() {
+		ob_start();
+		if ( ! isset( $_REQUEST['post_type'] ) && ! isset( $_REQUEST['pixfield'] ) && ! isset( $_REQUEST['value'] ) ) {
+			wp_send_json_error( 'No data recived' );
+			exit;
+		}
+		$values = $this->get_meta_values( $_REQUEST['pixfield'], $_REQUEST['post_type'] );
+		echo json_encode($values);
+		exit;
+	}
+
+	function make_fields( $post_type, $pixfields_list ) {
 		$unique_meta_keys = array();
 
 		if ( ! empty ( $pixfields_list ) ) {
@@ -518,24 +514,26 @@ class PixFieldsPlugin {
 				}
 
 				$fields = array_values( $fields );
-
 				foreach ( $fields as $key => $field ) {
 
-					self::$fields_list[$post_type][$key] = array_map('sanitize_text_field', $field );
+					$fields[$key] = array_map('sanitize_text_field', $field );
 					// @TODO ensure uniqueness and DO NOT depend on order
 					$meta_key = sanitize_title_with_dashes( $field['label'] );
 					if ( in_array($meta_key, $unique_meta_keys) ) {
 						$meta_key = $meta_key . '-'. $key;
 					}
 
-					self::$fields_list[$post_type][$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
+					$fields[$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
 				}
+
+				self::$fields_list[$post_type] = $fields;
 			}
 
 			// Update the meta field in the database.
 			update_option('pixfields_list', self::$fields_list);
 		} else {
-			update_option('pixfields_list', array());
+			self::$fields_list[ $post_type ] = array();
+			update_option('pixfields_list', self::$fields_list[ $post_type ] );
 		}
 	}
 
