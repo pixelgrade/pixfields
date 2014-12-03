@@ -87,7 +87,7 @@ function get_pixfield( $key , $post_id = null ) {
 	return get_post_meta( $post_id, 'pixfield_' . $key, true );
 }
 
-function get_pixfields ( $post_id = null ) {
+function get_pixfields( $post_id = null ) {
 	global $pixfields_plugin;
 	if ( $post_id == null ) {
 		global $post;

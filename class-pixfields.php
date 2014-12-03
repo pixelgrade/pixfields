@@ -353,12 +353,6 @@ class PixFieldsPlugin {
 			return;
 		}
 
-		// @TODO are you sure?
-		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-//		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-//			return;
-//		}
-
 		// Check the user's permissions.
 		if ( isset( $_POST['post_type'] ) && 'page' == $_POST['post_type'] ) {
 
@@ -380,8 +374,10 @@ class PixFieldsPlugin {
 			return;
 		}
 
-		// get only the pixfields values #regex #hack #danger
-		$pixfield_keys = array_intersect_key($_POST, array_flip(preg_grep('/^pixfield_/', array_keys($_POST))));
+		global $post;
+		// get only our pixfields keys and values #regex #hack #danger
+		$meta_keys = self::get_pixfields_keys( $post->post_type );
+		$pixfield_keys = array_intersect_key( $_POST, $meta_keys );
 
 		foreach ( $pixfield_keys as $key => $value ) {
 			update_post_meta( $post_id, $key, $value );
@@ -420,48 +416,6 @@ class PixFieldsPlugin {
 
 	<?php }
 
-	/**
-	 * When the post is saved, saves our custom data.
-	 * @param int $post_id The ID of the post being saved.
-	 * @TODO make this ajjax
-	 */
-
-//	function pixfields_save_modal_data( $post_id ) {
-//
-//		/*
-//		 * We need to verify this came from our screen and with proper authorization,
-//		 * because the save_post action can be triggered at other times.
-//		 */
-//		// Check if our nonce is set and if it's valid.
-//		if ( ! isset( $_POST['pixfields_modal_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pixfields_modal_meta_box_nonce'], 'pixfields_modal_meta_box' ) ) {
-//			return;
-//		}
-//
-//		// @TODO are you sure?
-//		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-//		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-//			return;
-//		}
-//
-//		// Check the user's permissions.
-//		if ( ! current_user_can( 'manage_options' ) ) {
-//			return;
-//		}
-//
-//		/* OK, it's safe for us to save the data now. */
-//
-//		// Make sure that it is set.
-//		if ( ! isset( $_POST['pixfields_list'] ) || ! is_array( $_POST['pixfields_list'] ) ) {
-//			return;
-//		}
-//
-//		// Sanitize user input which is given in this array.
-//		$pixfields_list = $_POST['pixfields_list'];
-//
-//		// Update the meta field in the database.
-//		$this->make_fields($pixfields_list);
-//	}
-
 	function ajax_no_access() {
 		echo 'you have no access here';
 		die();
@@ -490,7 +444,6 @@ class PixFieldsPlugin {
 		$out =  ob_get_clean();
 		wp_send_json_success($out);
 		exit;
-
 	}
 
 	function ajax_pixfield_autocomplete() {
@@ -505,7 +458,7 @@ class PixFieldsPlugin {
 	}
 
 	function make_fields( $post_type, $pixfields_list ) {
-		$unique_meta_keys = array();
+
 
 		if ( ! empty ( $pixfields_list ) ) {
 			foreach ( $pixfields_list as $post_type => $fields ){
@@ -516,17 +469,34 @@ class PixFieldsPlugin {
 					continue;
 				}
 
+				// make a list with all meta_keys already existent ( they should already be unique )
+				$unique_meta_keys = array();
+				foreach ( $fields as $key => $field ) {
+					if ( isset( $field['meta_key'] ) ) {
+						$unique_meta_keys[ $field['meta_key'] ] = $field['meta_key'];
+					}
+				}
+
 				$fields = array_values( $fields );
+
 				foreach ( $fields as $key => $field ) {
 
 					$fields[$key] = array_map('sanitize_text_field', $field );
-					// @TODO ensure uniqueness and DO NOT depend on order
-					$meta_key = sanitize_title_with_dashes( $field['label'] );
-					if ( in_array($meta_key, $unique_meta_keys) ) {
-						$meta_key = $meta_key . '-'. $key;
-					}
 
-					$fields[$key]['meta_key'] = $unique_meta_keys[$key] = $meta_key;
+					// if we don't have a meta key this means this is a new field
+					// so we ensure there isn't already a meta_key with the same value
+					if ( ! isset( $field['meta_key'] ) ) {
+						$meta_key = sanitize_title_with_dashes( $field['label'] );
+
+						// but if it is we make it unique with a timestamp suffix
+						if ( in_array($meta_key, $unique_meta_keys) ) {
+							$meta_key = $meta_key . '-'. time();
+						}
+
+						array_push($unique_meta_keys, $meta_key);
+
+						$fields[$key]['meta_key'] = $meta_key;
+					}
 				}
 
 				self::$fields_list[$post_type] = $fields;
@@ -581,7 +551,7 @@ class PixFieldsPlugin {
 
 	}
 
-	static function get_post_pixfields ( $post_type, $post_id ){
+	static function get_post_pixfields( $post_type, $post_id ){
 		$keys = array();
 		if ( isset(self::$fields_list[$post_type] ) ) {
 			foreach (self::$fields_list[$post_type] as $field ) {
@@ -592,14 +562,22 @@ class PixFieldsPlugin {
 		return $keys;
 	}
 
+	static function get_pixfields_keys( $post_type ) {
+
+		if ( isset( self::$fields_list[$post_type] ) ) {
+			$keys = array();
+			foreach ( self::$fields_list[$post_type] as $field ) {
+				$keys[ 'pixfield_' . $field['meta_key'] ] = '';
+			}
+			return $keys;
+		}
+		return false;
+	}
+
 	function update_plugin_setting( $name, $value ) {
-
 		// it doesn't matter if the settings doesn't exist we create one then
-//		if ( isset( self::$plugin_settings[ $name ] ) ) {
-			self::$plugin_settings[ $name ] = $value;
-			update_option( 'pixfields_settings', self::$plugin_settings );
-//		}
-
+		self::$plugin_settings[ $name ] = $value;
+		update_option( 'pixfields_settings', self::$plugin_settings );
 	}
 
 	static function get_base_path() {
