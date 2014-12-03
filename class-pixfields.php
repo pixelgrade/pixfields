@@ -126,7 +126,10 @@ class PixFieldsPlugin {
     ", $key, $type ) );
 
 		$r = array_filter( $r );
-		return array_combine($r, $r);
+		if ( !empty($r) ) {
+			return array_combine($r, $r);
+		}
+		return false;
 	}
 
 	/**
