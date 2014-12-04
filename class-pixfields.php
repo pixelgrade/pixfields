@@ -295,9 +295,17 @@ class PixFieldsPlugin {
 		}
 
 		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
+
+			// Make a nice metabox title
+			$post_type_obj = get_post_type_object($post_type);
+			$post_type_name = $post_type;
+			if ( $post_type_obj !== null ) {
+				$post_type_name = $post_type_obj->labels->singular_name;
+			}
+
 			add_meta_box(
 				'pixfields',
-				__( 'Meta fields', 'pixfield_txtd' ),
+				$post_type_name . __( ' fields', 'pixfield_txtd' ),
 				array( $this, 'pixfields_meta_box_callback' ),
 				$post_type,
 				'side'
@@ -458,8 +466,6 @@ class PixFieldsPlugin {
 	}
 
 	function make_fields( $post_type, $pixfields_list ) {
-
-
 		if ( ! empty ( $pixfields_list ) ) {
 			foreach ( $pixfields_list as $post_type => $fields ){
 
@@ -548,7 +554,6 @@ class PixFieldsPlugin {
 		require $_located;
 
 		return ob_get_clean();
-
 	}
 
 	static function get_post_pixfields( $post_type, $post_id ){

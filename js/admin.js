@@ -73,8 +73,11 @@
 			connectToSortable: ".ui-sortable",
 			revert: true,
 			placeholder: "ui-state-highlight",
+			forcePlaceholderSize: true,
+			dropOnEmpty: false,
 			helper: "clone",
-			handle: '.drag'
+			handle: '.drag',
+			scroll: false,
 		});
 		$( "ul.ui-sortable, .ui-sortable li" ).disableSelection();
 

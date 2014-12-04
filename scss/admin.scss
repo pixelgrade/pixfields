@@ -171,6 +171,11 @@ fieldset.group {
 				text-align: left;
 				font-weight: bold;
 
+				& > * {
+					font-size: 14px;
+					line-height: 22px;
+				}
+
 				& span.label {
 					display: block;
 					padding-left: 47px;
@@ -232,9 +237,12 @@ fieldset.group {
 .ui-state-highlight {
 	float: left;
 	display:block;
-	width: 100%;
-	background-color: rgba(212, 208, 0, 0.66);
-	height: 1.5em;
+	width: 80%;
+	margin: 0 10%;
+	background-color: #ebebeb;
+	box-shadow: 0 0 15px #ebebeb;
+	border-radius: 15px;
+	height: 39px;
 	line-height: 1.2em;
 }
 

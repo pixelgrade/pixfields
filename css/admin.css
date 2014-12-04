@@ -1786,6 +1786,9 @@ fieldset.group {
         float: left;
         text-align: left;
         font-weight: bold; }
+        #poststuff #pixfields_manager.active .pixfields_manager_modal .table_head > li > * {
+          font-size: 14px;
+          line-height: 22px; }
         #poststuff #pixfields_manager.active .pixfields_manager_modal .table_head > li span.label {
           display: block;
           padding-left: 47px;
@@ -1831,9 +1834,13 @@ fieldset.group {
 .ui-state-highlight {
   float: left;
   display: block;
-  width: 100%;
-  background-color: rgba(212, 208, 0, 0.66);
-  height: 1.5em;
+  width: 80%;
+  margin: 0 10%;
+  background-color: #ebebeb;
+  -webkit-box-shadow: 0 0 15px #ebebeb;
+  box-shadow: 0 0 15px #ebebeb;
+  border-radius: 15px;
+  height: 39px;
   line-height: 1.2em; }
 
 .pixfields_modal_visible {
