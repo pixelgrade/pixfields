@@ -2,10 +2,7 @@
 /**
  * Template used to display the pixfields box
  * Available vars:
- * array        $gallery_ids        An array with all attachments ids
- * object       $attachments        An object with all the attachments
- * string       $number_of_images   Count attachments
- * string       $columns            Number of columns
+ * array        $pixfields        An array with all pixfields keys and their labels
  */
 
 if ( ! isset( $pixfields ) || empty( $pixfields ) ) return; ?>

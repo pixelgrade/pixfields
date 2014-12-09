@@ -101,7 +101,13 @@ function get_pixfields( $post_id = null ) {
 	return $pixfields_plugin::get_post_pixfields($post_type, $post_id);
 }
 
-function get_filterable_pixfields_keys( $post_type ) {
+/**
+ * Get all the filtrable keys
+ * @param $post_type
+ *
+ * @return array as $key => $label
+ */
+function pixfields_get_filterable_metakeys( $post_type ) {
 
 	global $pixfields_plugin;
 
