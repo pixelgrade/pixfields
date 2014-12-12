@@ -230,7 +230,8 @@ class PixFieldsPlugin {
 			$is_post_page = array_key_exists( $current_post_type, self::$plugin_settings['display_on_post_types'] );
 		}
 
-		if ( $screen->id == $this->plugin_screen_hook_suffix || $is_post_page ) {
+		if ( $screen->id == $this->plugin_screen_hook_suffix || ( $is_post_page && $this->is_edit_page() ) ) {
+
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery', 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), $this->version );
 
 			$localized_array = array(
@@ -243,6 +244,20 @@ class PixFieldsPlugin {
 
 			wp_localize_script( $this->plugin_slug . '-admin-script', 'pixfields_l10n',$localized_array);
 		}
+	}
+
+	function is_edit_page($new_edit = null){
+		global $pagenow;
+		//make sure we are on the backend
+		if (!is_admin()) return false;
+
+
+		if($new_edit == "edit")
+			return in_array( $pagenow, array( 'post.php',  ) );
+		elseif($new_edit == "new") //check for new post page
+			return in_array( $pagenow, array( 'post-new.php' ) );
+		else //check for either new or edit
+			return in_array( $pagenow, array( 'post.php', 'post-new.php' ) );
 	}
 
 	/**
