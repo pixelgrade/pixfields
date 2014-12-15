@@ -10,7 +10,7 @@
 Plugin Name: PixFields
 Plugin URI:  http://pixelgrade.com
 Description: WordPress photo gallery proofing plugin.
-Version: 0.0.9
+Version: 0.5.0
 Author: PixelGrade
 Author URI: http://pixelgrade.com
 Author Email: contact@pixelgrade.com
