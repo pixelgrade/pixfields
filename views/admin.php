@@ -23,7 +23,7 @@ $errors    = $processor->errors(); ?>
 
 	<div id="icon-options-general" class="icon32"><br></div>
 
-	<h2><?php _e( 'Pixfields', 'pixfields_txtd' ); ?></h2>
+	<h2><?php _e( 'PixFields', 'pixfields_txtd' ); ?></h2>
 
 	<?php if ( $processor->ok() ): ?>
 

@@ -10,12 +10,12 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsProcessorImpl implements PixfieldsProcessor {
+class PixFieldsProcessorImpl implements PixFieldsProcessor {
 
-	/** @var PixfieldsMeta plugin configuration */
+	/** @var PixFieldsMeta plugin configuration */
 	protected $meta = null;
 
-	/** @var PixfieldsMeta field information */
+	/** @var PixFieldsMeta field information */
 	protected $fields = null;
 
 	/**
@@ -32,11 +32,11 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 	 * Apply configuration.
 	 */
 	protected function configure( $config = null ) {
-		$this->meta = pixfields::instance( 'PixfieldsMeta', $config );
+		$this->meta = pixfields::instance( 'PixFieldsMeta', $config );
 
 		// extract fields from configuration
 		$fields       = $this->extract( $this->meta->get( 'fields', array() ) );
-		$this->fields = pixfields::instance( 'PixfieldsMeta', $fields );
+		$this->fields = pixfields::instance( 'PixFieldsMeta', $fields );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 	/** @var array status */
 	protected $status = null;
 
-	/** @var PixfieldsMeta current data; including submitted data */
+	/** @var PixFieldsMeta current data; including submitted data */
 	protected $data = null;
 
 	/**
@@ -113,7 +113,7 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 					$current_values             = get_option( $option_key );
 					$new_option                 = array_merge( $current_values, $input );
 					update_option( $option_key, $new_option );
-					$this->data = pixfields::instance( 'PixfieldsMeta', $input );
+					$this->data = pixfields::instance( 'PixFieldsMeta', $input );
 					$this->postupdate( $input );
 				} else { // got errors
 					$this->status['errors'] = $errors;
@@ -145,7 +145,7 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 			throw new Exception( 'Unable to retrieve options.' );
 		}
 
-		$this->data = pixfields::instance( 'PixfieldsMeta', $dbconfig );
+		$this->data = pixfields::instance( 'PixFieldsMeta', $dbconfig );
 	}
 
 	/**
@@ -199,7 +199,7 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 	 * @return array
 	 */
 	protected function validate_input( $input ) {
-		$validator = pixfields::instance( 'PixfieldsValidator', $this->meta, $this->fields );
+		$validator = pixfields::instance( 'PixFieldsValidator', $this->meta, $this->fields );
 
 		return $validator->validate( $input );
 	}
@@ -223,7 +223,7 @@ class PixfieldsProcessorImpl implements PixfieldsProcessor {
 	}
 
 	/**
-	 * @return PixfieldsMeta current data (influenced by user submitted data)
+	 * @return PixFieldsMeta current data (influenced by user submitted data)
 	 */
 	function data() {
 		if ( $this->status === null ) {

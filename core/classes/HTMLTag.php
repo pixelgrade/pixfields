@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsHTMLTagImpl implements PixfieldsHTMLTag {
+class PixFieldsHTMLTagImpl implements PixFieldsHTMLTag {
 
 	/** @var array html attributes */
 	protected $attrs = null;
@@ -29,7 +29,7 @@ class PixfieldsHTMLTagImpl implements PixfieldsHTMLTag {
 	 * Apply configuration.
 	 */
 	protected function configure( $config = null ) {
-		$this->attrs = pixfields::instance( 'PixfieldsMeta', $config );
+		$this->attrs = pixfields::instance( 'PixFieldsMeta', $config );
 	}
 
 	/**

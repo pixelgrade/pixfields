@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsMetaImpl implements PixfieldsMeta {
+class PixFieldsMetaImpl implements PixFieldsMeta {
 
 	/** @var array metadat */
 	protected $metadata = array();
@@ -18,7 +18,7 @@ class PixfieldsMetaImpl implements PixfieldsMeta {
 	/**
 	 * @param  array metadata
 	 *
-	 * @return PixfieldsMeta
+	 * @return PixFieldsMeta
 	 */
 	static function instance( $metadata ) {
 		$i           = new self;

@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsFormImpl extends PixfieldsHTMLElementImpl implements PixfieldsForm {
+class PixFieldsFormImpl extends PixFieldsHTMLElementImpl implements PixFieldsForm {
 
 	/** @var array templates */
 	protected $fields = null;
@@ -37,10 +37,10 @@ class PixfieldsFormImpl extends PixfieldsHTMLElementImpl implements PixfieldsFor
 		$this->errors = array();
 
 		// setup default autocomplete
-		$this->autocomplete = pixfields::instance( 'PixfieldsMeta', array() );
+		$this->autocomplete = pixfields::instance( 'PixFieldsMeta', array() );
 
 		// setup fields
-		$this->fields = pixfields::instance( 'PixfieldsMeta', $config['fields'] );
+		$this->fields = pixfields::instance( 'PixFieldsMeta', $config['fields'] );
 		unset( $config['fields'] );
 
 		// invoke htmltag instance configuration
@@ -81,7 +81,7 @@ class PixfieldsFormImpl extends PixfieldsHTMLElementImpl implements PixfieldsFor
 			$fieldconfig = $this->fields->get( $fieldname );
 		}
 
-		return pixfields::instance( 'PixfieldsFormField', $fieldconfig )
+		return pixfields::instance( 'PixFieldsFormField', $fieldconfig )
 		                ->setmeta( 'form', $this )
 		                ->setmeta( 'name', $fieldname );
 	}
@@ -118,17 +118,17 @@ class PixfieldsFormImpl extends PixfieldsHTMLElementImpl implements PixfieldsFor
 	// Autocomplete
 	// ------------------------------------------------------------------------
 
-	/** @var PixfieldsMeta autocomplete */
+	/** @var PixFieldsMeta autocomplete */
 	protected $autocomplete = null;
 
 	/**
 	 * Autocomplete meta object passed on by the processor.
 	 *
-	 * @param PixfieldsMeta autocomplete values
+	 * @param PixFieldsMeta autocomplete values
 	 *
 	 * @return static $this
 	 */
-	function autocomplete( PixfieldsMeta $autocomplete ) {
+	function autocomplete( PixFieldsMeta $autocomplete ) {
 		$this->autocomplete = $autocomplete;
 
 		return $this;
@@ -179,18 +179,18 @@ class PixfieldsFormImpl extends PixfieldsHTMLElementImpl implements PixfieldsFor
 	 * @return string
 	 */
 	function fieldtemplate( $templatepath, $conf = array() ) {
-		$config = pixfields::instance( 'PixfieldsMeta', $conf );
+		$config = pixfields::instance( 'PixFieldsMeta', $conf );
 
 		return $this->fieldtemplate_render( $templatepath, $config );
 	}
 
 	/**
 	 * @param string template path
-	 * @param PixfieldsMeta configuration
+	 * @param PixFieldsMeta configuration
 	 *
 	 * @return string
 	 */
-	protected function fieldtemplate_render( $_template_path, PixfieldsMeta $conf ) {
+	protected function fieldtemplate_render( $_template_path, PixFieldsMeta $conf ) {
 		// variables which we wish to expose to template
 		$form = $this; # $this will also work
 

@@ -235,7 +235,7 @@
 	};
 
 	// @TODO this is a fail
-	//$.fn.serializePixfields = function() {
+	//$.fn.serializePixFields = function() {
 	//	var data = {};
 	//
 	//	$(this).each( function( key, element ) {

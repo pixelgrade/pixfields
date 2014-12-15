@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsFormFieldImpl extends PixfieldsHTMLElementImpl implements PixfieldsFormField {
+class PixFieldsFormFieldImpl extends PixFieldsHTMLElementImpl implements PixFieldsFormField {
 
 	/**
 	 * @param array config

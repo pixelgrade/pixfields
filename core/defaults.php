@@ -10,7 +10,7 @@
 	),
 	'processor' => array
 	(
-		// callback signature: (array $input, PixfieldsProcessor $processor)
+		// callback signature: (array $input, PixFieldsProcessor $processor)
 
 		'preupdate'  => array
 		(

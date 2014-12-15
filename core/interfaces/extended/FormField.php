@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-interface PixfieldsFormField extends PixfieldsHTMLElement {
+interface PixFieldsFormField extends PixFieldsHTMLElement {
 
 	/**
 	 * @return boolean true if field has errors

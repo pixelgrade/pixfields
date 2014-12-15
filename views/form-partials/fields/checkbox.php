@@ -1,6 +1,6 @@
 <?php defined('ABSPATH') or die;
-/* @var PixfieldsFormField $field */
-/* @var PixfieldsForm $form */
+/* @var PixFieldsFormField $field */
+/* @var PixFieldsForm $form */
 /* @var mixed $default */
 /* @var string $name */
 /* @var string $idname */

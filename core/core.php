@@ -64,10 +64,10 @@ class pixfields {
 	/**
 	 * @param array configuration
 	 *
-	 * @return PixfieldsForm
+	 * @return PixFieldsForm
 	 */
 	static function form( $config, $processor ) {
-		$form = self::instance( 'PixfieldsForm', $config );
+		$form = self::instance( 'PixFieldsForm', $config );
 		$form->autocomplete( $processor->data() );
 		$form->errors( $processor->errors() );
 
@@ -77,10 +77,10 @@ class pixfields {
 	/**
 	 * @param array configuration
 	 *
-	 * @return PixfieldsProcessor
+	 * @return PixFieldsProcessor
 	 */
 	static function processor( $config ) {
-		return self::instance( 'PixfieldsProcessor', $config );
+		return self::instance( 'PixFieldsProcessor', $config );
 	}
 
 
@@ -171,7 +171,7 @@ class pixfields {
 	 * @return string callback function name
 	 * @throws Exception
 	 */
-	static function callback( $key, PixfieldsMeta $meta ) {
+	static function callback( $key, PixFieldsMeta $meta ) {
 		$defaults          = pixfields::defaults();
 		$default_callbacks = $defaults['callbacks'];
 		$plugin_callbacks  = $meta->get( 'callbacks', array() );

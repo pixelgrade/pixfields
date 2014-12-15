@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-interface PixfieldsHTMLElement extends PixfieldsHTMLTag {
+interface PixFieldsHTMLElement extends PixFieldsHTMLTag {
 
 	/**
 	 * @param string meta key
@@ -49,7 +49,7 @@ interface PixfieldsHTMLElement extends PixfieldsHTMLTag {
 	function addmeta( $name, $value );
 
 	/**
-	 * @return PixfieldsMeta form meta
+	 * @return PixFieldsMeta form meta
 	 */
 	function meta();
 

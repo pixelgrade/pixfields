@@ -124,3 +124,20 @@ function pixfields_get_filterable_metakeys( $post_type ) {
 	return $return;
 
 }
+
+/**
+ * Add the shortcode button only on selected post types
+ */
+add_filter('filter_shortcodes','filter_pixfields_shortcode_button_by_post_type', 2, 2);
+function filter_pixfields_shortcode_button_by_post_type( $shortcodes, $post ) {
+
+	global $pixfields_plugin;
+
+	$post_types = array_keys( $pixfields_plugin::$plugin_settings['display_on_post_types'] );
+
+	if ( ! empty($post_types) && ! in_array( $post->post_type, $post_types ) ) {
+		unset( $shortcodes['WpGradeShortcode_PixFields'] );
+	}
+
+	return $shortcodes;
+}

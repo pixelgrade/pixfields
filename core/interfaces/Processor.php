@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-interface PixfieldsProcessor {
+interface PixFieldsProcessor {
 
 	/**
 	 * @return static $this
@@ -23,7 +23,7 @@ interface PixfieldsProcessor {
 	function status();
 
 	/**
-	 * @return PixfieldsMeta current data (influenced by user submitted data)
+	 * @return PixFieldsMeta current data (influenced by user submitted data)
 	 */
 	function data();
 

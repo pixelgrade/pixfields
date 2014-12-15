@@ -415,7 +415,7 @@ class PixFieldsPlugin {
 		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
 			add_meta_box(
 				'pixfields_manager',
-				__( 'Pixfields', 'pixfield_txtd' ),
+				__( 'PixFields', 'pixfield_txtd' ),
 				array( $this, 'modal_meta_box_callback' ),
 				$post_type
 			);
@@ -532,9 +532,15 @@ class PixFieldsPlugin {
 	}
 
 	function hook_into_the_content( $content ) {
-		if ( ! isset(self::$plugin_settings['display_place'] ) ) {
+		if ( ! isset( self::$plugin_settings['display_place'] ) ) {
 			return $content;
 		}
+
+		// when we have a shotcode this is not needed anymore
+		if ( has_shortcode( $content, 'pixfields' ) ) {
+			return $content;
+		}
+
 		global $post;
 
 		$metadata = self::get_template( $post->ID );

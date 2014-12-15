@@ -15,7 +15,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsHTMLElementImpl extends PixfieldsHTMLTagImpl implements PixfieldsHTMLElement {
+class PixFieldsHTMLElementImpl extends PixFieldsHTMLTagImpl implements PixFieldsHTMLElement {
 
 	/** @var array configuration values */
 	protected $meta = null;
@@ -46,7 +46,7 @@ class PixfieldsHTMLElementImpl extends PixfieldsHTMLTagImpl implements Pixfields
 		}
 
 		// setup meta fields
-		$this->meta = pixfields::instance( 'PixfieldsMeta', $config );
+		$this->meta = pixfields::instance( 'PixFieldsMeta', $config );
 	}
 
 
@@ -106,7 +106,7 @@ class PixfieldsHTMLElementImpl extends PixfieldsHTMLTagImpl implements Pixfields
 	}
 
 	/**
-	 * @return PixfieldsMeta
+	 * @return PixFieldsMeta
 	 */
 	function meta() {
 		return $this->meta;

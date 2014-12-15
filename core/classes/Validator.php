@@ -10,12 +10,12 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-class PixfieldsValidatorImpl implements PixfieldsValidator {
+class PixFieldsValidatorImpl implements PixFieldsValidator {
 
-	/** @var PixfieldsMeta plugin configuration */
+	/** @var PixFieldsMeta plugin configuration */
 	protected $meta = null;
 
-	/** @var PixfieldsMeta field information */
+	/** @var PixFieldsMeta field information */
 	protected $fields = null;
 
 	/**
@@ -39,13 +39,13 @@ class PixfieldsValidatorImpl implements PixfieldsValidator {
 		$fields !== null or $fields = array();
 
 		if ( is_array( $config ) ) {
-			$this->meta = pixfields::instance( 'PixfieldsMeta', $config );
+			$this->meta = pixfields::instance( 'PixFieldsMeta', $config );
 		} else { // non-array; assume meta object
 			$this->meta = $config;
 		}
 
 		if ( is_array( $fields ) ) {
-			$this->fields = pixfields::instance( 'PixfieldsMeta', $fields );
+			$this->fields = pixfields::instance( 'PixFieldsMeta', $fields );
 		} else { // non-array; assume meta object
 			$this->fields = $fields;
 		}

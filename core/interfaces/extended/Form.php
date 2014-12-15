@@ -10,7 +10,7 @@
  * @author     Pixel Grade Team
  * @copyright  (c) 2013, Pixel Grade Media
  */
-interface PixfieldsForm extends PixfieldsHTMLElement {
+interface PixFieldsForm extends PixFieldsHTMLElement {
 
 	/**
 	 * @return static $this
@@ -18,7 +18,7 @@ interface PixfieldsForm extends PixfieldsHTMLElement {
 	function addtemplatepath( $path );
 
 	/**
-	 * @return PixfieldsFormField
+	 * @return PixFieldsFormField
 	 */
 	function field( $fieldname );
 
@@ -37,11 +37,11 @@ interface PixfieldsForm extends PixfieldsHTMLElement {
 	/**
 	 * Autocomplete meta object passed on by the processor.
 	 *
-	 * @param PixfieldsMeta autocomplete values
+	 * @param PixFieldsMeta autocomplete values
 	 *
 	 * @return static $this
 	 */
-	function autocomplete( PixfieldsMeta $autocomplete );
+	function autocomplete( PixFieldsMeta $autocomplete );
 
 	/**
 	 * Retrieves the value registered for auto-complete. This will not fallback
