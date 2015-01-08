@@ -9,7 +9,7 @@
 * @wordpress-plugin
 Plugin Name: PixFields
 Plugin URI:  http://pixelgrade.com
-Description: WordPress photo gallery proofing plugin.
+Description: WordPress easy custom fields management plugin.
 Version: 0.5.1
 Author: PixelGrade
 Author URI: http://pixelgrade.com
