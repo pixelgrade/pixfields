@@ -55,7 +55,7 @@ $errors    = $processor->errors(); ?>
 
 	<?php elseif ( $status['state'] == 'error' ): ?>
 
-		<h3>Critical Error</h3>
+		<h3><?php _e( 'Critical Error', 'pixfields_txtd' ); ?></h3>
 
 		<p><?php echo $status['message'] ?></p>
 

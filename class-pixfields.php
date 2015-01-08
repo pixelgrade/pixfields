@@ -113,17 +113,30 @@ class PixFieldsPlugin {
 	}
 
 	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
-		global $wpdb;
 
 		if( empty( $key ) )
 			return;
 
-		$r = $wpdb->get_col( $wpdb->prepare( "
-        SELECT DISTINCT LEFT(pm.meta_value , 25) FROM {$wpdb->postmeta} pm
-        LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-        WHERE pm.meta_key = '%s'
-        AND p.post_type = '%s'
-    ", $key, $type ) );
+		//first get all posts of a certain type
+		$args = array(
+			'numberposts' => -1,
+			'post_type' => $type,
+			'post_status'      => $status,
+			'suppress_filters' => false, //allow filters - like WPML
+		);
+
+		$posts = get_posts($args);
+
+		//now go through each and get the meta value for the given meta key
+		if ( ! empty( $posts ) ) {
+			foreach ( $posts as $post) {
+				$meta_value = get_post_meta($post->ID, $key, true);
+
+				if ( ! empty($meta_value) && strlen($meta_value) < 26 ) { //only 25 characters max
+					$r[] = $meta_value;
+				}
+			}
+		}
 
 		$r = array_filter( $r );
 		if ( !empty($r) ) {
