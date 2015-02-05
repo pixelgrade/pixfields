@@ -110,9 +110,9 @@ function get_pixfields( $post_id = null ) {
 function pixfields_get_filterable_metakeys( $post_type ) {
 
 	global $pixfields_plugin;
-
+	$cache = $pixfields_plugin::$fields_list;
 	$return = array();
-	if ( isset( $pixfields_plugin::$fields_list[$post_type]  ) ) {
+	if ( isset( $cache[$post_type]  ) ) {
 		foreach ( $pixfields_plugin::$fields_list[$post_type] as $key => $fields ) {
 
 			if ( isset( $fields['filter'] ) ) {
@@ -132,8 +132,8 @@ add_filter('filter_shortcodes','filter_pixfields_shortcode_button_by_post_type',
 function filter_pixfields_shortcode_button_by_post_type( $shortcodes, $post ) {
 
 	global $pixfields_plugin;
-
-	$post_types = array_keys( $pixfields_plugin::$plugin_settings['display_on_post_types'] );
+	$plug_settings = $pixfields_plugin::$plugin_settings;
+	$post_types = array_keys( $plug_settings['display_on_post_types'] );
 
 	if ( ! empty($post_types) && ! in_array( $post->post_type, $post_types ) ) {
 		unset( $shortcodes['WpGradeShortcode_PixFields'] );
