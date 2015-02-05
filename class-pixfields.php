@@ -556,7 +556,7 @@ class PixFieldsPlugin {
 
 		global $post;
 
-		$metadata = self::get_template( $post->ID );
+		$metadata = $this->get_template( $post->ID );
 		if ( self::$plugin_settings['display_place'] == 'after_content' ) {
 			return $content . $metadata;
 		} elseif ( self::$plugin_settings['display_place'] == 'before_content') {
@@ -565,7 +565,7 @@ class PixFieldsPlugin {
 		return $content;
 	}
 
-	static function get_template( $post_id = null ) {
+	public function get_template( $post_id = null ) {
 
 		if ( $post_id == null ) {
 			$post = get_post( $post_id );

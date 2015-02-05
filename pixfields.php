@@ -74,7 +74,7 @@ function display_pixfields() {
 
 function get_pixfields_template() {
 	global $pixfields_plugin;
-	return $pixfields_plugin::get_template();
+	return $pixfields_plugin->get_template();
 }
 
 function get_pixfield( $key , $post_id = null ) {
