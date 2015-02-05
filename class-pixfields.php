@@ -58,9 +58,9 @@ class PixFieldsPlugin {
 
 	protected static $number_of_images;
 
-	public static $plugin_settings;
+	public static $plugin_settings = null;
 
-	public static $fields_list;
+	public static $fields_list = null;
 
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
@@ -70,8 +70,10 @@ class PixFieldsPlugin {
 
 		$this->plugin_basepath = plugin_dir_path( __FILE__ );
 		$this->config          = self::config();
-		self::$plugin_settings = get_option( 'pixfields_settings' );
-		self::$fields_list = get_option( 'pixfields_list' );
+
+		$this->get_pixfields_list();
+		$this->get_plugin_settings();
+
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
@@ -110,39 +112,6 @@ class PixFieldsPlugin {
 		// only admins can access this
 		add_action( 'wp_ajax_nopriv_save_pixfields', array( $this, 'ajax_no_access' ) );
 		add_action( 'wp_ajax_nopriv_pixfield_autocomplete', array( $this, 'ajax_no_access' ) );
-	}
-
-	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
-
-		if( empty( $key ) )
-			return;
-
-		//first get all posts of a certain type
-		$args = array(
-			'numberposts' => -1,
-			'post_type' => $type,
-			'post_status'      => $status,
-			'suppress_filters' => false, //allow filters - like WPML
-		);
-
-		$posts = get_posts($args);
-
-		//now go through each and get the meta value for the given meta key
-		if ( ! empty( $posts ) ) {
-			foreach ( $posts as $post) {
-				$meta_value = get_post_meta($post->ID, $key, true);
-
-				if ( ! empty($meta_value) && strlen($meta_value) < 26 ) { //only 25 characters max
-					$r[] = $meta_value;
-				}
-			}
-		}
-
-		$r = array_filter( $r );
-		if ( !empty($r) ) {
-			return array_combine($r, $r);
-		}
-		return false;
 	}
 
 	/**
@@ -252,7 +221,7 @@ class PixFieldsPlugin {
 			);
 
 			if ( isset( self::$plugin_settings['display_on_post_types'] ) || ! empty( self::$plugin_settings['display_on_post_types'] ) ) {
-				$localized_array['pixfields'] =  self::$fields_list;
+				$localized_array['pixfields'] =  $this->get_pixfields_list();
 			}
 
 			wp_localize_script( $this->plugin_slug . '-admin-script', 'pixfields_l10n',$localized_array);
@@ -353,8 +322,10 @@ class PixFieldsPlugin {
 		<ul class="pixfields" data-post_type="<?php echo $post_type; ?>">
 			<?php // check if we have fields for this post type
 
-			if ( isset( self::$fields_list[$post->post_type] ) && ! empty( self::$fields_list[$post->post_type] ) ) {
-					foreach ( self::$fields_list[$post->post_type] as $key => $field ) {
+			$fields_list = $this->get_pixfields_list();
+
+			if ( isset( $fields_list[$post->post_type] ) && ! empty( $fields_list[$post->post_type] ) ) {
+					foreach ( $fields_list[$post->post_type] as $key => $field ) {
 						$meta_key = 'pixfield_' . $field['meta_key'];
 						$value = get_post_meta($post->ID, $meta_key, true); ?>
 						<li class="pixfield" data-pixfield="<?php echo $meta_key ?>">
@@ -556,7 +527,7 @@ class PixFieldsPlugin {
 
 		global $post;
 
-		$metadata = self::get_template( $post->ID );
+		$metadata = $this->get_template( $post->ID );
 		if ( self::$plugin_settings['display_place'] == 'after_content' ) {
 			return $content . $metadata;
 		} elseif ( self::$plugin_settings['display_place'] == 'before_content') {
@@ -565,7 +536,7 @@ class PixFieldsPlugin {
 		return $content;
 	}
 
-	static function get_template( $post_id = null ) {
+	public function get_template( $post_id = null ) {
 
 		if ( $post_id == null ) {
 			$post = get_post( $post_id );
@@ -581,7 +552,7 @@ class PixFieldsPlugin {
 			$_located = dirname( __FILE__ ) . '/views/' . $template_name;
 		}
 
-		$pixfields = self::get_post_pixfields( $post->post_type, $post->ID );
+		$pixfields = $this->get_post_pixfields( $post->post_type, $post->ID );
 
 		ob_start();
 
@@ -590,10 +561,11 @@ class PixFieldsPlugin {
 		return ob_get_clean();
 	}
 
-	static function get_post_pixfields( $post_type, $post_id ){
+	public function get_post_pixfields( $post_type, $post_id ){
+		$fields_list = $this->get_pixfields_list();
 		$keys = array();
-		if ( isset(self::$fields_list[$post_type] ) ) {
-			foreach (self::$fields_list[$post_type] as $field ) {
+		if ( isset($fields_list[$post_type] ) ) {
+			foreach ($fields_list[$post_type] as $field ) {
 				$keys[ $field['meta_key'] ] = get_post_meta( $post_id, 'pixfield_' . $field['meta_key'], true);
 			}
 		}
@@ -617,6 +589,58 @@ class PixFieldsPlugin {
 		// it doesn't matter if the settings doesn't exist we create one then
 		self::$plugin_settings[ $name ] = $value;
 		update_option( 'pixfields_settings', self::$plugin_settings );
+	}
+
+	public function get_plugin_settings() {
+
+		if ( self::$plugin_settings === null ) {
+			self::$plugin_settings = get_option( 'pixfields_settings' );
+		}
+
+		return self::$plugin_settings;
+	}
+
+
+	public function get_pixfields_list(){
+
+		if ( self::$fields_list === null ) {
+			self::$fields_list = get_option( 'pixfields_list' );
+		}
+
+		return self::$fields_list;
+	}
+
+	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
+
+		if( empty( $key ) )
+			return;
+
+		//first get all posts of a certain type
+		$args = array(
+			'numberposts' => -1,
+			'post_type' => $type,
+			'post_status'      => $status,
+			'suppress_filters' => false, //allow filters - like WPML
+		);
+
+		$posts = get_posts($args);
+
+		//now go through each and get the meta value for the given meta key
+		if ( ! empty( $posts ) ) {
+			foreach ( $posts as $post) {
+				$meta_value = get_post_meta($post->ID, $key, true);
+
+				if ( ! empty($meta_value) && strlen($meta_value) < 26 ) { //only 25 characters max
+					$r[] = $meta_value;
+				}
+			}
+		}
+
+		$r = array_filter( $r );
+		if ( !empty($r) ) {
+			return array_combine($r, $r);
+		}
+		return false;
 	}
 
 	static function get_base_path() {

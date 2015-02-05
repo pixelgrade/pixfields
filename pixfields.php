@@ -74,7 +74,7 @@ function display_pixfields() {
 
 function get_pixfields_template() {
 	global $pixfields_plugin;
-	return $pixfields_plugin::get_template();
+	return $pixfields_plugin->get_template();
 }
 
 function get_pixfield( $key , $post_id = null ) {
@@ -98,7 +98,7 @@ function get_pixfields( $post_id = null ) {
 	$post_id = $post->ID;
 	$post_type = $post->post_type;
 
-	return $pixfields_plugin::get_post_pixfields($post_type, $post_id);
+	return $pixfields_plugin->get_post_pixfields($post_type, $post_id);
 }
 
 /**
@@ -110,10 +110,10 @@ function get_pixfields( $post_id = null ) {
 function pixfields_get_filterable_metakeys( $post_type ) {
 
 	global $pixfields_plugin;
-
+	$fields_list = $pixfields_plugin->get_pixfields_list();
 	$return = array();
-	if ( isset( $pixfields_plugin::$fields_list[$post_type]  ) ) {
-		foreach ( $pixfields_plugin::$fields_list[$post_type] as $key => $fields ) {
+	if ( isset( $cache[$post_type]  ) ) {
+		foreach ( $fields_list[$post_type] as $key => $fields ) {
 
 			if ( isset( $fields['filter'] ) ) {
 				$return[$fields['meta_key']] = $fields['label'];
@@ -132,8 +132,8 @@ add_filter('filter_shortcodes','filter_pixfields_shortcode_button_by_post_type',
 function filter_pixfields_shortcode_button_by_post_type( $shortcodes, $post ) {
 
 	global $pixfields_plugin;
-
-	$post_types = array_keys( $pixfields_plugin::$plugin_settings['display_on_post_types'] );
+	$plug_settings = $pixfields_plugin->get_plugin_settings();
+	$post_types = array_keys( $plug_settings['display_on_post_types'] );
 
 	if ( ! empty($post_types) && ! in_array( $post->post_type, $post_types ) ) {
 		unset( $shortcodes['WpGradeShortcode_PixFields'] );
