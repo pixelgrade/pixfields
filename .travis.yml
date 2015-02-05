@@ -8,6 +8,8 @@ env:
   - WP_VERSION=4.1 WP_MULTISITE=1
 
 before_script:
+    - sudo apt-get install ruby
+    - gem install nyx
     - export PHPCS_GITHUB_SRC=squizlabs/PHP_CodeSniffer
     - export PHPCS_DIR=/tmp/phpcs
     - export PHPCS_BRANCH=phpcs-fixer
@@ -17,6 +19,8 @@ before_script:
 script:
     - find . \( -name '*.php' \) -exec php -lf {} \;
     - phpunit --filter WordPress /tmp/phpcs/tests/AllTests.php
+    - nyx version
+    - nyx check:php .
 
 notifications:
   email:
