@@ -16,19 +16,17 @@ $attrs = array
 	'id'    => $idname,
 	'type'  => 'text',
 	'value' => $form->autovalue( $name )
-);
-?>
+); ?>
 
-<?php if ( $rendering == 'inline' ): ?>
+<?php if ( $rendering == 'inline' ){ ?>
 	<input <?php echo $field->htmlattributes( $attrs ) ?>/>
-<?php elseif ( $rendering == 'blocks' ): ?>
+<?php } elseif ( $rendering == 'blocks' ) { ?>
 	<div class="text">
 		<label id="<?php echo $name ?>"><?php echo $label ?></label>
 		<input <?php echo $field->htmlattributes( $attrs ) ?> />
 		<span><?php echo $desc ?></span>
 	</div>
-<?php
-else: # {?>
+<?php } else { # {?>
 	<div>
 		<p><?php echo $desc ?></p>
 		<label id="<?php echo $name ?>">
@@ -36,4 +34,4 @@ else: # {?>
 			<input <?php echo $field->htmlattributes( $attrs ) ?>/>
 		</label>
 	</div>
-	<?php } endif; ?>
+<?php } ?>

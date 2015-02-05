@@ -581,7 +581,7 @@ class PixFieldsPlugin {
 			$_located = dirname( __FILE__ ) . '/views/' . $template_name;
 		}
 
-		$pixfields = self::get_post_pixfields( $post->post_type, $post->ID );
+		$pixfields = $this->get_post_pixfields( $post->post_type, $post->ID );
 
 		ob_start();
 
@@ -590,7 +590,7 @@ class PixFieldsPlugin {
 		return ob_get_clean();
 	}
 
-	static function get_post_pixfields( $post_type, $post_id ){
+	public function get_post_pixfields( $post_type, $post_id ){
 		$keys = array();
 		if ( isset(self::$fields_list[$post_type] ) ) {
 			foreach (self::$fields_list[$post_type] as $field ) {

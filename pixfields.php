@@ -98,7 +98,7 @@ function get_pixfields( $post_id = null ) {
 	$post_id = $post->ID;
 	$post_type = $post->post_type;
 
-	return $pixfields_plugin::get_post_pixfields($post_type, $post_id);
+	return $pixfields_plugin->get_post_pixfields($post_type, $post_id);
 }
 
 /**
