@@ -114,7 +114,6 @@ function pixfields_get_filterable_metakeys( $post_type ) {
 	$return = array();
 	if ( isset( $cache[$post_type]  ) ) {
 		foreach ( $fields_list[$post_type] as $key => $fields ) {
-
 			if ( isset( $fields['filter'] ) ) {
 				$return[$fields['meta_key']] = $fields['label'];
 			}
@@ -122,7 +121,6 @@ function pixfields_get_filterable_metakeys( $post_type ) {
 	}
 
 	return $return;
-
 }
 
 /**
@@ -130,7 +128,6 @@ function pixfields_get_filterable_metakeys( $post_type ) {
  */
 add_filter('filter_shortcodes','filter_pixfields_shortcode_button_by_post_type', 2, 2);
 function filter_pixfields_shortcode_button_by_post_type( $shortcodes, $post ) {
-
 	global $pixfields_plugin;
 	$plug_settings = $pixfields_plugin->get_plugin_settings();
 	$post_types = array_keys( $plug_settings['display_on_post_types'] );
