@@ -112,7 +112,7 @@ function pixfields_get_filterable_metakeys( $post_type ) {
 	global $pixfields_plugin;
 	$fields_list = $pixfields_plugin->get_pixfields_list();
 	$return = array();
-	if ( isset( $cache[$post_type]  ) ) {
+	if ( isset( $fields_list[$post_type]  ) ) {
 		foreach ( $fields_list[$post_type] as $key => $fields ) {
 			if ( isset( $fields['filter'] ) ) {
 				$return[$fields['meta_key']] = $fields['label'];
