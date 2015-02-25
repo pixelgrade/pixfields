@@ -648,12 +648,3 @@ class PixFieldsPlugin {
 	}
 }
 
-function match_callback( $matches ) {
-	$the_id = substr( trim( $matches[0] ), 1 );
-
-	$matches[0] = '<span class="pixfields_photo_ref" data-href="#item-' . $the_id . '">#' . $the_id . '</span>';
-
-	return $matches[0];
-
-}
-
