@@ -229,7 +229,8 @@
 
 	var serialize_form = function( form ) {
 		if ( form.length > 0 ) {
-			return $(form ).serialize();
+			var serialized_data = $(form).serialize();
+			return decodeURIComponent(serialized_data);
 		}
 		return false;
 	};

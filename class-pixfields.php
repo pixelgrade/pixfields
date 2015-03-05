@@ -20,7 +20,7 @@ class PixFieldsPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '0.5.1';
+	protected $version = '0.5.2';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -58,7 +58,7 @@ class PixFieldsPlugin {
 
 	protected static $number_of_images;
 
-	public static $plugin_settings = null;
+	public $plugin_settings = null;
 
 	public static $fields_list = null;
 
@@ -182,7 +182,7 @@ class PixFieldsPlugin {
 		$is_post_page = false;
 
 		if ($current_post_type) {
-			$is_post_page = array_key_exists( $current_post_type, self::$plugin_settings['display_on_post_types'] );
+			$is_post_page = array_key_exists( $current_post_type, $this->plugin_settings['display_on_post_types'] );
 		}
 
 		$screen = get_current_screen();
@@ -209,7 +209,7 @@ class PixFieldsPlugin {
 		$is_post_page = false;
 
 		if ($current_post_type) {
-			$is_post_page = array_key_exists( $current_post_type, self::$plugin_settings['display_on_post_types'] );
+			$is_post_page = array_key_exists( $current_post_type, $this->plugin_settings['display_on_post_types'] );
 		}
 
 		if ( $screen->id == $this->plugin_screen_hook_suffix || ( $is_post_page && $this->is_edit_page() ) ) {
@@ -220,7 +220,7 @@ class PixFieldsPlugin {
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 			);
 
-			if ( isset( self::$plugin_settings['display_on_post_types'] ) || ! empty( self::$plugin_settings['display_on_post_types'] ) ) {
+			if ( isset( $this->plugin_settings['display_on_post_types'] ) || ! empty( $this->plugin_settings['display_on_post_types'] ) ) {
 				$localized_array['pixfields'] =  $this->get_pixfields_list();
 			}
 
@@ -287,11 +287,11 @@ class PixFieldsPlugin {
 	 */
 	function add_pixfields_meta_box() {
 
-		if ( ! isset( self::$plugin_settings['display_on_post_types'] ) || empty( self::$plugin_settings['display_on_post_types'] ) ) {
+		if ( ! isset( $this->plugin_settings['display_on_post_types'] ) || empty( $this->plugin_settings['display_on_post_types'] ) ) {
 			return;
 		}
 
-		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
+		foreach ( $this->plugin_settings['display_on_post_types'] as $post_type => $val ) {
 
 			// Make a nice metabox title
 			$post_type_obj = get_post_type_object($post_type);
@@ -339,7 +339,7 @@ class PixFieldsPlugin {
 		</ul>
 
 		<?php
-		if ( isset( self::$plugin_settings['allow_edit_on_post_page'] ) && self::$plugin_settings['allow_edit_on_post_page'] ) { ?>
+		if ( isset( $this->plugin_settings['allow_edit_on_post_page'] ) && $this->plugin_settings['allow_edit_on_post_page'] ) { ?>
 			<span class="manage_button_wrapper">
 				<a href="#" class="open_pixfields_modal"><?php _e( 'Manage fields', 'pixfields_txtd' ); ?></a>
 			</span>
@@ -393,10 +393,10 @@ class PixFieldsPlugin {
 
 	function pixfields_add_modal_meta_box() {
 
-		if ( ! isset( self::$plugin_settings['display_on_post_types'] ) || empty( self::$plugin_settings['display_on_post_types'] ) ) {
+		if ( ! isset( $this->plugin_settings['display_on_post_types'] ) || empty( $this->plugin_settings['display_on_post_types'] ) ) {
 			return;
 		}
-		foreach ( self::$plugin_settings['display_on_post_types'] as $post_type => $val ) {
+		foreach ( $this->plugin_settings['display_on_post_types'] as $post_type => $val ) {
 			add_meta_box(
 				'pixfields_manager',
 				__( 'PixFields', 'pixfield_txtd' ),
@@ -491,7 +491,13 @@ class PixFieldsPlugin {
 					// if we don't have a meta key this means this is a new field
 					// so we ensure there isn't already a meta_key with the same value
 					if ( ! isset( $field['meta_key'] ) ) {
-						$meta_key = sanitize_title_with_dashes( $field['label'] );
+						$meta_key = $field['label']; // old way sanitize_title_with_dashes( $field['label'] );
+
+						// try to sanitize a little
+						$meta_key = strip_tags($meta_key);
+						$meta_key = strtolower($meta_key);
+						$meta_key = preg_replace('/&.+?;/', '', $meta_key); // kill entities
+						$meta_key = str_replace(array(' ', '.', '!', '?', ',', ':' ), '-', $meta_key);
 
 						// but if it is we make it unique with a timestamp suffix
 						if ( in_array($meta_key, $unique_meta_keys) ) {
@@ -516,7 +522,7 @@ class PixFieldsPlugin {
 	}
 
 	function hook_into_the_content( $content ) {
-		if ( ! isset( self::$plugin_settings['display_place'] ) ) {
+		if ( ! isset( $this->plugin_settings['display_place'] ) ) {
 			return $content;
 		}
 
@@ -528,9 +534,9 @@ class PixFieldsPlugin {
 		global $post;
 
 		$metadata = $this->get_template( $post->ID );
-		if ( self::$plugin_settings['display_place'] == 'after_content' ) {
+		if ( $this->plugin_settings['display_place'] == 'after_content' ) {
 			return $content . $metadata;
-		} elseif ( self::$plugin_settings['display_place'] == 'before_content') {
+		} elseif ( $this->plugin_settings['display_place'] == 'before_content') {
 			return $metadata . $content;
 		}
 		return $content;
@@ -587,17 +593,17 @@ class PixFieldsPlugin {
 
 	function update_plugin_setting( $name, $value ) {
 		// it doesn't matter if the settings doesn't exist we create one then
-		self::$plugin_settings[ $name ] = $value;
-		update_option( 'pixfields_settings', self::$plugin_settings );
+		$this->plugin_settings[ $name ] = $value;
+		update_option( 'pixfields_settings', $this->plugin_settings );
 	}
 
 	public function get_plugin_settings() {
 
-		if ( self::$plugin_settings === null ) {
-			self::$plugin_settings = get_option( 'pixfields_settings' );
+		if ( $this->plugin_settings === null ) {
+			$this->plugin_settings = get_option( 'pixfields_settings' );
 		}
 
-		return self::$plugin_settings;
+		return $this->plugin_settings;
 	}
 
 
@@ -636,8 +642,8 @@ class PixFieldsPlugin {
 			}
 		}
 
-		$r = array_filter( $r );
 		if ( !empty($r) ) {
+			$r = array_filter( $r );
 			return array_combine($r, $r);
 		}
 		return false;
@@ -646,14 +652,5 @@ class PixFieldsPlugin {
 	static function get_base_path() {
 		return plugin_dir_path( __FILE__ );
 	}
-}
-
-function match_callback( $matches ) {
-	$the_id = substr( trim( $matches[0] ), 1 );
-
-	$matches[0] = '<span class="pixfields_photo_ref" data-href="#item-' . $the_id . '">#' . $the_id . '</span>';
-
-	return $matches[0];
-
 }
 
