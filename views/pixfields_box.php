@@ -8,12 +8,25 @@
 if ( ! isset( $pixfields ) || empty( $pixfields ) ) return; ?>
 <div class="pixfields_box" >
 	<ul class="pixfields_list">
-	<?php foreach ( $pixfields as $label => $pixfield) {
+	<?php foreach ( $pixfields as $id => $pixfield) {
+
 		if ( empty($pixfield) ) {
 			continue;
+		}
+
+		$label = $id;
+		$value = $pixfield;
+		if ( is_array( $pixfield  ) ) {
+			if ( isset( $pixfield['label'] ) ) {
+				$label = $pixfield['label'];
+			}
+
+			if ( isset( $pixfield['value'] ) ) {
+				$value = $pixfield['value'];
+			}
 		} ?>
 		<li class="pixfield">
-			<strong><?php echo $label; ?></strong> : <?php echo $pixfield; ?>
+			<strong><?php echo $label; ?></strong> : <?php echo $value; ?>
 		</li>
 	<?php } ?>
 	</ul>
