@@ -20,7 +20,7 @@ class PixFieldsPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '0.5.3';
+	protected $version = '0.6.0';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -569,10 +569,19 @@ class PixFieldsPlugin {
 
 	public function get_post_pixfields( $post_type, $post_id ){
 		$fields_list = $this->get_pixfields_list();
+
 		$keys = array();
 		if ( isset($fields_list[$post_type] ) ) {
 			foreach ($fields_list[$post_type] as $field ) {
-				$keys[ $field['meta_key'] ] = get_post_meta( $post_id, 'pixfield_' . $field['meta_key'], true);
+
+				$keys[ $field['meta_key'] ] = array(
+					'label' => $field['label'],
+					'value' => get_post_meta( $post_id, 'pixfield_' . $field['meta_key'], true),
+				);
+
+				if ( isset( $field['filter'] ) ) {
+					$keys[ $field['meta_key'] ]['filter'] = $field['filter'];
+				}
 			}
 		}
 
