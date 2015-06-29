@@ -29,7 +29,7 @@ class PixFieldsPlugin {
 	 * @since    1.0.0
 	 * @var      string
 	 */
-	protected $plugin_slug = 'pixfields';
+	protected $plugin_slug = 'pixfields_txtd';
 
 	/**
 	 * Instance of this class.
@@ -100,6 +100,8 @@ class PixFieldsPlugin {
 		// fields
 		add_action( 'add_meta_boxes', array( $this, 'add_pixfields_meta_box' ) );
 //		add_action( 'save_post', array( $this, 'pixfields_save_modal_data' ) );
+
+		add_filter( 'icl_wpml_config_array', array( $this, 'add_fields_to_the_wpml_options' ), 1 );
 
 		// a little hook into the_content
 		add_filter( 'the_content', array( $this, 'hook_into_the_content' ), 10, 1 );
@@ -181,7 +183,7 @@ class PixFieldsPlugin {
 		$current_post_type = get_post_type();
 		$is_post_page = false;
 
-		if ($current_post_type) {
+		if ( $current_post_type && isset( $this->plugin_settings['display_on_post_types'] ) ) {
 			$is_post_page = array_key_exists( $current_post_type, $this->plugin_settings['display_on_post_types'] );
 		}
 
@@ -208,7 +210,7 @@ class PixFieldsPlugin {
 		$current_post_type = get_post_type();
 		$is_post_page = false;
 
-		if ($current_post_type) {
+		if ( $current_post_type && isset( $this->plugin_settings['display_on_post_types'] ) ) {
 			$is_post_page = array_key_exists( $current_post_type, $this->plugin_settings['display_on_post_types'] );
 		}
 
@@ -302,7 +304,7 @@ class PixFieldsPlugin {
 
 			add_meta_box(
 				'pixfields',
-				$post_type_name . __( ' fields', 'pixfield_txtd' ),
+				$post_type_name . __( ' fields', 'pixfields_txtd' ),
 				array( $this, 'pixfields_meta_box_callback' ),
 				$post_type,
 				'side'
@@ -323,11 +325,10 @@ class PixFieldsPlugin {
 			<?php // check if we have fields for this post type
 
 			$fields_list = $this->get_pixfields_list();
-
 			if ( isset( $fields_list[$post->post_type] ) && ! empty( $fields_list[$post->post_type] ) ) {
 					foreach ( $fields_list[$post->post_type] as $key => $field ) {
 						$meta_key = 'pixfield_' . $field['meta_key'];
-						$value = get_post_meta($post->ID, $meta_key, true); ?>
+						$value = get_post_meta( $this->get_the_post_id( $post->ID, $post->post_type ), $meta_key, true); ?>
 						<li class="pixfield" data-pixfield="<?php echo $meta_key ?>">
 							<label for="<?php echo $meta_key; ?>"><?php echo $field['label'];?></label>
 							<br/>
@@ -344,6 +345,14 @@ class PixFieldsPlugin {
 				<a href="#" class="open_pixfields_modal"><?php _e( 'Manage fields', 'pixfields_txtd' ); ?></a>
 			</span>
 		<?php }
+	}
+
+	function get_the_post_id( $id, $post_type = 'post' ) {
+		if(function_exists('icl_object_id')) {
+			return icl_object_id($id, $post_type, true);
+		} else {
+			return $id;
+		}
 	}
 
 	/**
@@ -399,7 +408,7 @@ class PixFieldsPlugin {
 		foreach ( $this->plugin_settings['display_on_post_types'] as $post_type => $val ) {
 			add_meta_box(
 				'pixfields_manager',
-				__( 'PixFields', 'pixfield_txtd' ),
+				__( 'PixFields', 'pixfields_txtd' ),
 				array( $this, 'modal_meta_box_callback' ),
 				$post_type
 			);
@@ -625,6 +634,44 @@ class PixFieldsPlugin {
 		return self::$fields_list;
 	}
 
+	// inform WPML about PixField's labels and pass them as admin-texts
+	function  add_fields_to_the_wpml_options( $options ) {
+
+		if ( isset( $options['wpml-config']['admin-texts'] ) ) {
+
+			$pixfields_list = get_option('pixfields_list');
+
+			// add pixfields labels to the wpml config list
+			$pixfields_wpml_config = array(
+				'attr' => array( 'name' => 'pixfields_list' )
+			);
+
+			if ( ! empty( $pixfields_list ) ) {
+				foreach ( $pixfields_list as $post_type => $pixfields ) {
+					$these_args = array(
+						'attr' => array( 'name' => $post_type )
+					);
+
+					foreach ( $pixfields as $pkey => $pixfield ) {
+						$these_args['key'][] = array(
+							'attr' => array( 'name' => $pkey ),
+							'key' => array( 'attr' => array( 'name' => 'label' ) )
+						);
+					}
+
+					$pixfields_wpml_config['key'][] = $these_args;
+				}
+			}
+
+			$pixfields_wpml_config['type'] = 'plugin';
+			$pixfields_wpml_config['context'] = 'pixfields';
+
+			$options['wpml-config']['admin-texts']['key'][] = $pixfields_wpml_config;
+		}
+
+		return $options;
+	}
+
 	function get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
 
 		if( empty( $key ) )
@@ -662,4 +709,3 @@ class PixFieldsPlugin {
 		return plugin_dir_path( __FILE__ );
 	}
 }
-

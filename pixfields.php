@@ -65,8 +65,14 @@ require_once( plugin_dir_path( __FILE__ ) . 'class-pixfields.php' );
 register_activation_hook( __FILE__, array( 'PixFieldsPlugin', 'activate' ) );
 //register_deactivation_hook( __FILE__, array( 'PixTypesPlugin', 'deactivate' ) );
 
-global $pixfields_plugin;
-$pixfields_plugin = PixFieldsPlugin::get_instance();
+if ( ! function_exists( 'init_pixfields_plugin' ) ) {
+	function init_pixfields_plugin () {
+		global $pixfields_plugin;
+		$pixfields_plugin = PixFieldsPlugin::get_instance();
+	}
+}
+
+add_action('init', 'init_pixfields_plugin');
 
 function display_pixfields() {
 	echo get_pixfields_template();
