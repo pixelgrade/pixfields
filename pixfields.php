@@ -10,7 +10,7 @@
 Plugin Name: PixFields
 Plugin URI:  http://pixelgrade.com
 Description: WordPress easy custom fields management plugin.
-Version: 0.6.0
+Version: 0.6.1
 Author: PixelGrade
 Author URI: http://pixelgrade.com
 Author Email: contact@pixelgrade.com

@@ -1,9 +1,9 @@
 === PixFields ===
 Contributors: euthelup, babbardel, pixelgrade
 Tags: custom, fields, metadata
-Requires at least: 3.8.0
+Requires at least: 3.9.0
 Tested up to: 4.2.2
-Stable tag: 1.0.0
+Stable tag: 0.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,3 +20,8 @@ The theme should style the output of the metadata.
 
 1. Install PixFields either via the WordPress.org plugin directory, or by uploading the files to your `/wp-content/plugins/` directory
 2. After activating PixFields go to any edit page and see the PixFields metabox in the right sidebar.
+
+== Changelog ==
+
+= 0.6.1 =
+* Add compatibility for WPML
