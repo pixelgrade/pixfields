@@ -29,7 +29,7 @@ class PixFieldsPlugin {
 	 * @since    1.0.0
 	 * @var      string
 	 */
-	protected $plugin_slug = 'pixfields_txtd';
+	protected $plugin_slug = 'pixfields';
 
 	/**
 	 * Instance of this class.
