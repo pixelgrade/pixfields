@@ -1,0 +1,11 @@
+<wpml-config>
+    <admin-texts>
+        <key name="pixfields_list">
+            <key name="mies_portfolio">
+                <key name="0">
+                    <key name="label"/>
+                </key>
+            </key>
+        </key>
+    </admin-texts>
+</wpml-config>
