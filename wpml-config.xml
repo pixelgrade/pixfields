@@ -1,7 +1,7 @@
 <wpml-config>
     <admin-texts>
         <key name="pixfields_list">
-            <key name="mies_portfolio">
+            <key name="*">
                 <key name="0">
                     <key name="label"/>
                 </key>
