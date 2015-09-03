@@ -1,9 +1,9 @@
 === PixFields ===
 Contributors: euthelup, babbardel, pixelgrade
 Tags: custom, fields, metadata
-Requires at least: 3.9.0
-Tested up to: 4.2.2
-Stable tag: 0.6.1
+Requires at least: 4.0.0
+Tested up to: 4.3.0
+Stable tag: 0.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,10 @@ The theme should style the output of the metadata.
 2. After activating PixFields go to any edit page and see the PixFields metabox in the right sidebar.
 
 == Changelog ==
+
+= 0.6.2 =
+* Allow labels to be translated by WPML as admin-texts
+* Fix assets version
 
 = 0.6.1 =
 * Add compatibility for WPML

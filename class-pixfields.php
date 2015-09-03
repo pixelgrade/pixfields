@@ -20,7 +20,7 @@ class PixFieldsPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '0.6.1';
+	protected $version = '0.6.2';
 
 	/**
 	 * Unique identifier for your plugin.
