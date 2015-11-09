@@ -22,7 +22,6 @@ install: gem install nyx
 cache: bundler
 
 script:
-    - ls -al
     - nyx version
     - nyx check:php .
 
