@@ -73,11 +73,11 @@ class PixFieldsValidatorImpl implements PixFieldsValidator {
 
 			$rules = array();
 			// check pixfields defaults
-			if ( isset( $defaults['checks'][ $field['type'] ] ) ) {
+			if ( isset( $field['type'] ) && isset( $defaults['checks'][ $field['type'] ] ) ) {
 				$rules = $defaults['checks'][ $field['type'] ];
 			}
 			// check theme defaults
-			if ( isset( $plugin_checks[ $field['type'] ] ) ) {
+			if ( isset( $field['type'] ) &&  isset( $plugin_checks[ $field['type'] ] ) ) {
 				$rules = array_merge( $rules, $plugin_checks[ $field['type'] ] );
 			}
 			// check field presets

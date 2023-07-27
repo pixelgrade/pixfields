@@ -8,7 +8,7 @@
  * Author URI: https://pixelgrade.com
  * Author Email: contact@pixelgrade.com
  * Requires at least: 4.9.9
- * Tested up to: 5.2.2
+ * Tested up to: 6.2.2
  * Text Domain: pixfields_txtd
  * License:     GPL-2.0 or later.
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
