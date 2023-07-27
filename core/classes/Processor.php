@@ -104,6 +104,8 @@ class PixFieldsProcessorImpl implements PixFieldsProcessor {
 			}
 
 			if ( $this->form_was_submitted() ) {
+				check_admin_referer( 'pixfields-save-settings' );
+
 				$input  = $this->cleanup_input( $_POST );
 				$errors = $this->validate_input( $input );
 

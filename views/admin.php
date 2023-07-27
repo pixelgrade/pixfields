@@ -47,6 +47,8 @@ $errors    = $processor->errors(); ?>
 		echo $f->field( 'general' )->render();
 		//echo $f->field( 'fields_manager' )->render(); ?>
 
+		<?php wp_nonce_field( 'pixfields-save-settings' ); ?>
+
 		<button type="submit" class="button button-primary">
 			<?php _e( 'Save Changes', 'pixfields_txtd' ); ?>
 		</button>

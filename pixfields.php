@@ -1,24 +1,19 @@
 <?php
-/*
-* @package   PixFields
-* @author    PixelGrade <contact@pixelgrade.com>
-* @license   GPL-2.0+
-* @link      http://pixelgrade.com
-* @copyright 2014 PixelGrade
-*
-* @wordpress-plugin
-Plugin Name: PixFields
-Plugin URI:  http://pixelgrade.com
-Description: WordPress easy custom fields management plugin.
-Version: 0.7.0
-Author: PixelGrade
-Author URI: http://pixelgrade.com
-Author Email: contact@pixelgrade.com
-Text Domain: proof
-License:     GPL-2.0+
-License URI: http://www.gnu.org/licenses/gpl-2.0.txt
-Domain Path: /lang
-*/
+/**
+ * Plugin Name: PixFields
+ * Plugin URI: https://wordpress.org/plugins/pixfields/
+ * Description: WordPress easy custom fields management plugin.
+ * Version: 0.7.1
+ * Author: Pixelgrade
+ * Author URI: https://pixelgrade.com
+ * Author Email: contact@pixelgrade.com
+ * Requires at least: 4.9.9
+ * Tested up to: 5.2.2
+ * Text Domain: pixfields_txtd
+ * License:     GPL-2.0 or later.
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Domain Path: /lang
+ */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -108,7 +103,7 @@ function get_pixfields( $post_id = null ) {
 }
 
 /**
- * Get all the filtrable keys
+ * Get all the filterable keys
  * @param $post_type
  *
  * @return array as $key => $label

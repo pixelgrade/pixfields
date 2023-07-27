@@ -23,6 +23,9 @@ The theme should style the output of the metadata.
 
 == Changelog ==
 
+= 0.7.1 =
+* Security fix
+
 = 0.7.0 =
 * Several compatibility checks with Gutenberg were done, so that we can finally say that the plugin is Gutenberg-ready
 
