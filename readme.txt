@@ -1,8 +1,8 @@
 === PixFields ===
 Contributors: euthelup, babbardel, pixelgrade
 Tags: custom, fields, metadata
-Requires at least: 4.9.0
-Tested up to: 5.2.2
+Requires at least: 4.9.9
+Tested up to: 6.2.2
 Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
